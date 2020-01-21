@@ -1,4 +1,4 @@
-# no hassle with tessera, you only think about your model
+# tessera
 Thin layer of helper functions on top of PyNN to have all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
 
 ## structure
