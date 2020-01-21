@@ -10,8 +10,19 @@ tessera is made of three files:
 
 tessera is assuming a full PyNN installation with at least the latest NEST. It usually drops perfectly in a docker container created from the neuralensembles/simulationx docker image (see below for example code).
 
+## parameters files
+no hassles with tessera, the only file you usually need to modify is the parameter file to drive PyNN.
+
+You will find a series of example files in the directory `example`. Here below an annotated one. Ready?
+
+
 
 ## usage examples
+Enter the tessera folder
+
+```
+cd tessera
+```
 
 Run simple code
 
