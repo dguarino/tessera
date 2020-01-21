@@ -2,7 +2,7 @@
 Thin layer of helper functions on top of PyNN to have all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
 
 ## no need to install
-You don't need to `python setup.py install ...` tessera. I actually use it just as available functions but, if you want, you can install it and have those functions available as a module.
+You don't need to `python setup.py install ...` tessera. You just clone it, enter the folder, and start simulating.
 
 ## structure
 tessera is made of three files:
@@ -13,10 +13,10 @@ tessera is made of three files:
 
 tessera is assuming a full PyNN installation with at least the latest NEST. It usually drops perfectly in a docker container created from the neuralensembles/simulationx docker image (see below for example code).
 
-## parameters files
+## parameters file
 no hassles with tessera, the only file you usually need to modify is the parameter file to drive PyNN.
 
-You will find a series of example files in the directory `example`. Here below an annotated one. Ready?
+You will find a series of example files in the directory `example`. Here below some explanations.
 
 
 
