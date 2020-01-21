@@ -1,6 +1,9 @@
 # tessera
 Thin layer of helper functions on top of PyNN to have all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
 
+## no need to install
+You don't need to `python setup.py install ...` tessera. I actually use it just as available functions but, if you want, you can install it and have those functions available as a module.
+
 ## structure
 tessera is made of three files:
 
