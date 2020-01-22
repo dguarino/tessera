@@ -8,7 +8,7 @@ Therefore, you don't need to `python setup.py install tessera`. You just clone i
 
 However, if you really want, you can install it to derive your own classes using it as a module.
 
-## structure
+## files
 tessera is made of three files:
 
 * helpers.py - contains all the routines to drive PyNN to define models and stimuli, run simulations (also for parameter searches), collect state values and save them as results ready to be analysed.
@@ -17,14 +17,16 @@ tessera is made of three files:
 
 tessera is assuming a full PyNN installation with at least the latest NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image is provided doing the job, dependent on the neuralensembles/simulationx docker image (see docker.com and `Dockerfile`).
 
-## parameters file
-no hassles with tessera, the only file you usually need to modify is one parameter file to drive PyNN.
+## parameters
+no hassles with tessera, you usually only need to modify a dictionary of parameters to drive PyNN.
 
-You will find a series of example files in the directory `example`. Here below some explanations.
+You will find a series of examples in the directory `example`. Here below some explanations.
 
 Say you want to model slow-wave sleep conditions in a network of spiking neurons.
 
-First, you start with single cell response properties to excitatory and inhibitory
+One approach is that first, you start by understanding single cell response properties to excitatory and inhibitory current pulses; second, you use the parameters you found by fitting in-vitro studies to constrain a network of similar units by also using additional in-vitro and in-vivo intra- and extra-cellular measurements.
+
+Let's start with in-vitro single cell protocols.
 
 ### PSP in cortical pyramidal cell
 Say you want to match the single cell EPSP or IPSP response of regular spiking pyramidal neurons against different input resistance states (as in McCormick and Pape 1986). 
