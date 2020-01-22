@@ -11,18 +11,23 @@ However, if you really want, you can install it to derive your own classes using
 ## structure
 tessera is made of three files:
 
-* helpers.py - contains all the routines to drive PyNN in creating a simulation
-* run.py - contains the code to interpret the command line
+* helpers.py - contains all the routines to drive PyNN to define models and stimuli, run simulations (also for parameter searches), collect state values and save them as results ready to be analysed.
+* run.py - contains the code to interpret various shell commands 
 * analysis.py - additional routines for the analysis of simulation results
 
-tessera is assuming a full PyNN installation with at least the latest NEST. It usually drops perfectly in a docker container created from the neuralensembles/simulationx docker image (see below for example code).
+tessera is assuming a full PyNN installation with at least the latest NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image is provided doing the job, dependent on the neuralensembles/simulationx docker image (see docker.com and `Dockerfile`).
 
 ## parameters file
-no hassles with tessera, the only file you usually need to modify is the parameter file to drive PyNN.
+no hassles with tessera, the only file you usually need to modify is one parameter file to drive PyNN.
 
 You will find a series of example files in the directory `example`. Here below some explanations.
 
+Say you want to model slow-wave sleep conditions in a network of spiking neurons.
 
+First, you start with single cell response properties to excitatory and inhibitory
+
+### PSP in cortical pyramidal cell
+Say you want to match the single cell EPSP or IPSP response of regular spiking pyramidal neurons against different input resistance states (as in McCormick and Pape 1986). 
 
 ## usage examples
 Enter the tessera folder
