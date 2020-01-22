@@ -2,7 +2,11 @@
 Thin layer of helper functions on top of PyNN to have all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
 
 ## no need to install
-You don't need to `python setup.py install ...` tessera. You just clone it, enter the folder, and start simulating.
+Tessera is meant to be a set of helper scripts, to develop spiking neuron models straight out of a PyNN installation and as a drop-in for cluster deployment where you can only upload files but not install.
+
+Therefore, you don't need to `python setup.py install tessera`. You just clone it, enter the folder, and start simulating.
+
+However, if you really want, you can install it to derive your own classes using it as a module.
 
 ## structure
 tessera is made of three files:
