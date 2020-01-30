@@ -27,7 +27,7 @@ You will find a series of examples in the directory `example`. Here below some e
 
 Say you want to model slow-wave sleep conditions in a network of spiking neurons.
 
-One approach is that first, you start by understanding single cell response properties to excitatory and inhibitory current pulses; second, you use the parameters you found by fitting in-vitro studies to constrain a network of similar units by also using additional in-vitro and in-vivo intra- and extra-cellular measurements.
+My approach is that first, start by understanding single cell response properties to excitatory and inhibitory current pulses; second, use the parameters found by fitting in-vitro studies to constrain a network of similar units by also using additional in-vitro and in-vivo intra- and extra-cellular measurements.
 
 Let's start with in-vitro single cell protocols.
 
