@@ -4,18 +4,21 @@ Thin layer of helper functions on top of PyNN to have all parameters, recorders,
 ## no need to install
 Tessera is meant to be a set of helper scripts, to develop spiking neuron models straight out of a PyNN installation and as a drop-in for cluster deployment where you can only upload files but not install.
 
-Therefore, you don't need to `python setup.py install tessera`. You just clone it, enter the folder, and start simulating.
+tessera is assuming a full PyNN installation with at least the latest NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image is provided doing the job, dependent on the neuralensembles/simulationx docker image (see docker.com and `Dockerfile`).
 
-However, if you really want, you can install it to derive your own classes using it as a module.
+Therefore, **you don't need to** `python setup.py install tessera`. You just clone it, enter the folder, and start using the underlaying simulators through PyNN.
 
 ## files
-tessera is made of three files:
+tessera is made of two files:
 
 * helpers.py - contains all the routines to drive PyNN to define models and stimuli, run simulations (also for parameter searches), collect state values and save them as results ready to be analysed.
 * run.py - contains the code to interpret various shell commands 
-* analysis.py - additional routines for the analysis of simulation results
 
-tessera is assuming a full PyNN installation with at least the latest NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image is provided doing the job, dependent on the neuralensembles/simulationx docker image (see docker.com and `Dockerfile`).
+You then run your analysis as you want, based on PyNN's output files in the neo format. 
+
+My personal set of function is in:
+
+* analysis.py - additional routines for the analysis of simulation results
 
 ## parameters
 no hassles with tessera, you usually only need to modify a dictionary of parameters to drive PyNN.
