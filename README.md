@@ -2,14 +2,14 @@
 Thin layer of helper functions on top of PyNN to have all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
 
 ## no need to install
-/tessera/ is meant to be a set of helper scripts, to develop spiking neuron models straight out of a PyNN installation and as a drop-in solution for cluster deployment where you can only upload files but not install libraries/packages/...
+*tessera* is meant to be a set of helper scripts, to develop spiking neuron models straight out of a PyNN installation and as a drop-in solution for cluster deployment where you can only upload files but not install libraries/packages/...
 
-tessera is assuming that PyNN is installed with at least NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image can do the job, for example neuralensembles/simulationx (see docker.com and `Dockerfile`).
+*tessera* is assuming that PyNN is installed with at least NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image can do the job, for example neuralensembles/simulationx (see docker.com and `Dockerfile`).
 
 Therefore, **you don't need to** `python setup.py install tessera`. You just clone it, enter the folder, and start using the underlaying simulators through PyNN.
 
 ## files
-tessera is made of two files:
+*tessera* is made of two files:
 
 * helpers.py - contains all the routines to drive PyNN to define models and stimuli, run simulations (also for parameter searches), collect state values and save them as results ready to be analysed.
 * run.py - contains the code to interpret various shell commands 
@@ -21,13 +21,13 @@ My personal set of function is in:
 * analysis.py - additional routines for the analysis of simulation results
 
 ## parameters
-no hassles with tessera, you usually only need to modify a dictionary of parameters to drive PyNN.
+no hassles with *tessera*, you usually only need to modify a dictionary of parameters to drive PyNN.
 
 You will find a series of examples in the directory `example`. Here below some explanations.
 
 Say you want to model slow-wave sleep conditions in a network of spiking neurons.
 
-My approach is that first, start by understanding single cell response properties to excitatory and inhibitory current pulses; second, use the parameters found by fitting in-vitro studies to constrain a network of similar units by also using additional in-vitro and in-vivo intra- and extra-cellular measurements.
+My approach is that first, start by understanding single cell response properties to excitatory and inhibitory current pulses; second, understand excitatory and inhibitory ; third, use the parameters found by fitting in-vitro studies to constrain a network of similar units by also using additional in-vitro and in-vivo intra- and extra-cellular measurements.
 
 Let's start with in-vitro single cell protocols.
 
