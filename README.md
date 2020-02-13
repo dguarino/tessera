@@ -1,10 +1,10 @@
 # tessera
-Thin layer of helper functions on top of PyNN to have all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
+A small set of helper functions to ease the developing of spiking neural networks in PyNN by having all parameters, recorders, command line interpretation (also for parameter searches), and analysis in one place.
 
 ## no need to install
-*tessera* is meant to be a set of helper scripts, to develop spiking neuron models straight out of a PyNN installation and as a drop-in solution for cluster deployment where you can only upload files but not install libraries/packages/...
+*tessera* is meant to be a drop-in solution for cluster and neuromorphic deployment where you can only upload files but not install libraries/packages/...
 
-*tessera* is assuming that PyNN is installed with at least NEST. To ease the pain of installing a full stack from ubuntu to NEURON and NEST and numpy, and matplotlib ... a docker image can do the job, for example neuralensembles/simulationx (see docker.com and `Dockerfile`).
+*tessera* is assuming that PyNN is installed with at least NEST. To ease the pain of installing a full stack with NEURON, and NEST, and numpy, and matplotlib ... a docker image can do the job, for example neuralensembles/simulationx (see docker.com and `Dockerfile`).
 
 Therefore, **you don't need to** `python setup.py install tessera`. You just clone it, enter the folder, and start using the underlaying simulators through PyNN.
 
@@ -21,7 +21,7 @@ My personal set of function is in:
 * analysis.py - additional routines for the analysis of simulation results
 
 ## parameters
-no hassles with *tessera*, you usually only need to modify a dictionary of parameters to drive PyNN.
+You only need to modify a dictionary of parameters to drive PyNN.
 
 You will find a series of examples in the directory `example`. Here below some explanations.
 
