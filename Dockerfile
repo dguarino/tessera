@@ -1,9 +1,20 @@
-##############################################################################
-# A Docker image for running neuronal network simulations
+##########################################################
+# A Docker image for running neuronal network simulations using PyNN
 #
-# docker build (--no-chache) -t neuromod .
+# docker build --no-chache -t tessera .
 # docker ps
-# docker run -e DISPLAY=$DISPLAY -v `pwd`:`pwd` -w `pwd` -i -t neuromod /bin/bash
+# docker run -e DISPLAY=$DISPLAY -v `pwd`:`pwd` -w `pwd` -i -t tessera /bin/bash
+#
+# Usage examples
+#
+# Run simple code:
+# python run.py --folder test --params params_Cx.py nest
+#
+# Search Example:
+# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --map yes nest
+#
+# Analysis Example:
+# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --analysis true nest
 
 FROM neuralensemble/simulationx
 
@@ -16,7 +27,7 @@ MAINTAINER domenico.guarino@cnrs.fr
 #ENV DISPLAY :0
 CMD export DISPLAY=0.0
 
-#######################################################
+##########################################################
 # Additional prerequisite libraries
 
 RUN apt-get autoremove -y && \
@@ -24,24 +35,9 @@ RUN apt-get autoremove -y && \
 
 
 ##########################################################
-# Additions to run AdEx thalamus explorative study
+# the tessera environment
 
 WORKDIR $HOME
-RUN git clone https://github.com/dguarino/neuromod.git
+RUN git clone https://github.com/dguarino/tessera.git
 
-WORKDIR $HOME/neuromod
-
-
-##########################################################
-# Usage examples
-
-# Run simple code
-# python run.py --folder test --params params_Cx.py nest
-
-# Search Example:
-# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --map yes nest
-# python run.py --folder IPSPsearch --params ipsp_response.py --search search.py --map yes nest
-# python plot_map.py
-
-# Analysis Example
-# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --analysis true nest
+WORKDIR $HOME/tessera
