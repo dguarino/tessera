@@ -48,17 +48,18 @@ from pyNN.utility.plotting import Figure, Panel # analysis
 
 
 def analyse(params, folder, addon='', removeDataFile=False):
-    print("analysing data")
+    print("Analysing data...")
+
     # populations key-recorders match
     populations = {}
     for popKey,popVal in params['Populations'].items():
         if popKey != 'ext':
             if popKey in params['Recorders']:
                 populations[popKey] = list(params['Recorders'][popKey].keys())
-                # print(popKey, populations[popKey])
 
 
-    # analysis dependent on the static values of parameters, not the running itself
+    ###################################
+    # analyses dependent on the static values of parameters, not the running itself
     if params['Analysis']['Static']:
         xn1, xn2 = H( params, (-50,10), 100 )
         fig = plot.figure()
@@ -72,15 +73,58 @@ def analyse(params, folder, addon='', removeDataFile=False):
         plot.ylabel("H") 
         plot.ylim([-10.,1000000.0])
         plot.title("H space") 
-        fig.savefig(folder+'/H_'+addon+'.svg')
+        fig.savefig(folder+'/H_'+addon+'.svg', transparent=True)
         fig.clf()
         plot.close()
 
 
+    ###################################
+    # phase synchrony
+    if 'Coherence' in params['Analysis'] and params['Analysis']['Coherence']:
+        # print(params['Analysis']['Coherence']['Population1'])
+        neo1 = pickle.load( open(folder+'/'+params['Analysis']['Coherence']['Population1']+addon+'.pkl', "rb") )
+        data1 = neo1.segments[0]
+        fr1 = rate(params, data1.spiketrains, bin_size=10) # ms
+        # print(params['Analysis']['Coherence']['Population1'], fr1.mean())
+        neo2 = pickle.load( open(folder+'/'+params['Analysis']['Coherence']['Population2']+addon+'.pkl', "rb") )
+        data2 = neo2.segments[0]
+        fr2 = rate(params, data2.spiketrains, bin_size=10) # ms
+        # print(params['Analysis']['Coherence']['Population2'], fr2.mean())
+        print('Coherence')
+        phase_coherence(fr1, fr2, folder=folder, addon=addon)
+
+
+    ###################################
+    if 'Injections' in params['Analysis'] and params['Analysis']['Injections']:
+        amplitude = np.array([0.]+params['Injections']['cell']['amplitude']+[0.])#[0.,-.25, 0.0, .25, 0.0, 0.]
+        start = np.array([0.]+params['Injections']['cell']['start']+[params['run_time']])/params['dt']
+        start_int = start.astype(int)
+        current = np.array([])
+
+        for i in range(1,len(amplitude)):
+            if current.shape == (0,):
+                current = np.ones( (start_int[i]-start_int[i-1]+1,1) )*amplitude[i-1]
+            else:
+                current = np.concatenate( (current, np.ones( (start_int[i]-start_int[i-1],1) )*amplitude[i-1]), 0)
+        current = AnalogSignal(current, units='mA', sampling_rate=params['dt']*pq.Hz)
+        current.channel_index = np.array([0])
+        panels.append( Panel(current, ylabel = "Current injection (mA)",xlabel="Time (ms)", xticks=True, legend=None) )
+
+
+    ###################################
     # iteration over populations and selective plotting based on params and available recorders
     for key,rec in populations.items():
-        # print(key)
+        print("Analysis for:",key)
 
+        # assuming 2D structure to compute the edge N
+        n = 0
+        if isinstance(params['Populations'][key]['n'], dict):
+            n = int(params['Populations'][params['Populations'][key]['n']['ref']]['n'] * params['Populations'][key]['n']['ratio'])
+        else:
+            n = int(params['Populations'][key]['n'])
+        edge = int(np.sqrt(n))
+
+        # get data
         neo = pickle.load( open(folder+'/'+key+addon+'.pkl', "rb") )
         data = neo.segments[0]
 
@@ -99,34 +143,8 @@ def analyse(params, folder, addon='', removeDataFile=False):
 
 
         ###################################
-        if params['Analysis']['Vm'] and 'v' in rec:
-            vm = data.filter(name = 'v')[0]
-            # print(vm)
-            # panels.append( Panel(vm, ylabel="Membrane potential (mV)", xlabel="Time (ms)", xticks=True, yticks=True, legend=None) )
-            ###################################
-            # workaround
-            fig = plot.figure()
-            plot.plot(vm,linewidth=2)
-            # plot.xlim([15000,40000])
-            plot.ylim([-100,0.0]) # to plot it nicely
-            # plot.ylim([-100,0.0])
-            fig.savefig(folder+'/vm_'+key+addon+'.svg')
-            # plot.xlim([30000,40000])
-            # fig.savefig(folder+'/zoom_vm_'+key+addon+'.svg')
-            plot.close()
-            fig.clf()
-            #################
-            # Vm histogram
-            fig = plot.figure()
-            ylabel = key
-            n,bins,patches = plot.hist(np.mean(vm,1), bins=50, normed=True) # 50*dt = 5ms bin
-            fig.savefig(folder+'/Vm_histogram_'+key+addon+'.svg')
-            plot.close()
-            fig.clear()
-
-
-        ###################################
-        if params['Analysis']['PhaseSpace'] and 'w' in rec and 'v' in rec:
+        if 'PhaseSpace' in params['Analysis'] and params['Analysis']['PhaseSpace'] and 'w' in rec and 'v' in rec:
+            print('PhaseSpace')
             vm = data.filter(name = 'v')[0]
             w = data.filter(name = 'w')[0]
             # plot W
@@ -134,13 +152,16 @@ def analyse(params, folder, addon='', removeDataFile=False):
             plot.plot(w,linewidth=2)
             # plot.ylim([-100,-20.0]) # just to plot it nicely
             # plot.ylim([-100,0.0])
-            fig.savefig(folder+'/w_'+key+addon+'.svg')
+            fig.savefig(folder+'/w_'+key+addon+'.svg', transparent=True)
             fig.clf()
             plot.close()
             # plot Phase space
             I = 0 # at rest
             xn1, xn2 = nullcline( v_nullcline, params, I, (-100,0), 100 )
-            I = params['Injections']['cell']['amplitude'][0]
+            if params['Injections'] and params['Injections']['cell']['amplitude']:
+                I = params['Injections']['cell']['amplitude'][0]
+            else:
+                I = 0.0
             xI1, xI2 = nullcline( v_nullcline, params, I, (-100,0), 100 )
             yn1, yn2 = nullcline( w_nullcline, params, I, (-100,0), 100 )
             fig = plot.figure()
@@ -152,9 +173,51 @@ def analyse(params, folder, addon='', removeDataFile=False):
             plot.xlabel("V (mV)") 
             plot.ylabel("w (nA)") 
             plot.title("Phase space") 
-            fig.savefig(folder+'/phase_'+key+addon+'.svg')
+            fig.savefig(folder+'/phase_'+key+addon+'.svg', transparent=True)
             plot.close()
             fig.clf()
+
+
+        ###################################
+        if 'Vm' in params['Analysis'] and params['Analysis']['Vm'] and 'v' in rec:
+            print('Vm')
+            vm = data.filter(name = 'v')[0]
+            # print(vm)
+            # panels.append( Panel(vm, ylabel="Membrane potential (mV)", xlabel="Time (ms)", xticks=True, yticks=True, legend=None) )
+            ###################################
+            # workaround
+            fig = plot.figure()
+            plot.plot(vm,linewidth=2)
+            # plot.ylim([-100,0.0]) # GENERIC
+            #################
+            # plot.xlim([9900,12500]) # E/IPSP single pulse (0.1 Hz)
+            #################
+            plot.xlim([10000,60000]) # E/IPSP single pulse (0.1 Hz)
+            plot.ylim([-66,-54]) # Control EPSP on RE
+            #################
+            # plot.ylim([-75.5,-71.5]) # Control EPSP on RS
+            # plot.ylim([-79.,-74.5]) # ACh EPSP on RS
+            # plot.ylim([-79.,-74.5]) # Control IPSP on RS
+            # plot.ylim([-79.,-74.5]) # ACh IPSP on RS
+            #################
+            # plot.ylim([-64.5,-60]) # Control EPSP on FS
+            # plot.ylim([-51.5,-47.]) # ACh EPSP on FS
+            # plot.ylim([-67.5,-63.5]) # Control IPSP on FS
+            # plot.ylim([-54.5,-50.5]) # ACh IPSP on FS
+            #################
+            # saving
+            fig.savefig(folder+'/vm_'+key+addon+'.svg', transparent=True)
+            # fig.savefig(folder+'/zoom_vm_'+key+addon+'.svg')
+            plot.close()
+            fig.clf()
+            #################
+            # Vm histogram
+            fig = plot.figure()
+            ylabel = key
+            n,bins,patches = plot.hist(np.mean(vm,1), bins=50, normed=True) # 50*dt = 5ms bin
+            fig.savefig(folder+'/Vm_histogram_'+key+addon+'.svg', transparent=True)
+            plot.close()
+            fig.clear()
 
 
         # if 'gsyn_exc' in rec:
@@ -168,72 +231,151 @@ def analyse(params, folder, addon='', removeDataFile=False):
 
 
         ###################################
-        if params['Injections']:
-            amplitude = np.array([0.]+params['Injections']['cell']['amplitude']+[0.])#[0.,-.25, 0.0, .25, 0.0, 0.]
-            start = np.array([0.]+params['Injections']['cell']['start']+[params['run_time']])/params['dt']
-            start_int = start.astype(int)
-            current = np.array([])
+        if 'Rasterplot' in params['Analysis'] and params['Analysis']['Rasterplot'] and 'spikes' in rec:
+            print('Rasterplot')
 
-            for i in range(1,len(amplitude)):
-                if current.shape == (0,):
-                    current = np.ones( (start_int[i]-start_int[i-1]+1,1) )*amplitude[i-1]
-                else:
-                    current = np.concatenate( (current, np.ones( (start_int[i]-start_int[i-1],1) )*amplitude[i-1]), 0)
-            current = AnalogSignal(current, units='mA', sampling_rate=params['dt']*pq.Hz)
-            current.channel_index = np.array([0])
-            panels.append( Panel(current, ylabel = "Current injection (mA)",xlabel="Time (ms)", xticks=True, legend=None) )
+            spikelist = data.spiketrains
+            # cell selection
+            if key in params['Analysis']['Rasterplot']:
+                spikelist = select_spikelist( spiketrains=data.spiketrains, edge=edge, limits=params['Analysis']['Rasterplot'][key]['limits'] )
 
+            local_addon = addon
+            if params['Analysis']['Rasterplot']['interval']:
+                local_addon = local_addon +'_zoom'
 
-        ###################################
-        if params['Analysis']['Rasterplot'] and 'spikes' in rec:
-            # panels.append( Panel(data.spiketrains, xlabel="Time (ms)", xticks=True, markersize=1) )
-            ###################################
-            # workaround
             fig = plot.figure()
-            for row,st in enumerate(data.spiketrains):
-                plot.scatter( st, [row]*len(st), marker='o', edgecolors='none', s=0.2 )
-            fig.savefig(folder+'/spikes_'+key+addon+'.svg')
+            for row,st in enumerate(spikelist):
+
+                train = st
+                if params['Analysis']['Rasterplot']['interval']:
+                    train = train[ train>params['Analysis']['Rasterplot']['interval'][0] ]
+                    train = train[ train<params['Analysis']['Rasterplot']['interval'][1] ]
+
+                plot.scatter( train, [row]*len(train), marker='o', edgecolors='none', s=0.2 )
+            fig.savefig(folder+'/spikes_'+key+local_addon+params['Analysis']['Rasterplot']['type'], transparent=True, dpi=params['Analysis']['Rasterplot']['dpi'])
             plot.close()
             fig.clf()
 
 
+
         ###################################
-        if params['Analysis']['ISI'] and 'spikes' in rec:
+        # we are iterating over the data for the key
+        # we want to visualize data.spiketrain as a time set of 2D frames
+        if 'Movie' in params['Analysis'] and params['Analysis']['Movie'] and 'spikes' in rec:
+            # print(key , params['Analysis']['Movie']['populations'])
+            if not key in params['Analysis']['Movie']['populations']:
+                continue # we only do the movie for the required population
+            print('Movie')
+
+            duration = int(params['run_time']/params['dt'])
+            frames = None
+
+            print('+ preparing frames ...')
+            # prapare frames for the biggest extent of space (among the population listed)
+            for k,v in params['Analysis']['Movie']['populations'].items():
+                # print(isinstance(k, dict))
+                # print(isinstance(v, dict))
+                # print(v['ratio'])
+                if v['ratio'] == 1: # biggest extent of network space
+                    n = 0
+                    if isinstance(params['Populations'][k]['n'], dict):
+                        n = int(params['Populations'][params['Populations'][k]['n']['ref']]['n'] * params['Populations'][k]['n']['ratio'])
+                    else:
+                        n = int(params['Populations'][k]['n'])
+                    refedge = int(np.sqrt(n))
+
+                    shape = ( duration+1, refedge, refedge )
+                    frames = np.zeros(shape)
+                    break 
+
+            v = params['Analysis']['Movie']['populations'][key]
+            # print(isinstance(v, dict))
+
+            if v['plot']:
+                # iterate over spiketrains and use times to update frames
+                for idn,st in enumerate(data.spiketrains):
+                    # use st entries as indexes to put ones
+                    x = int((idn*v['ratio']) % refedge)
+                    y = int((idn*v['ratio']) / refedge)
+                    for t in st:
+                        frames[int(t/params['dt'])][x][y] = 1.
+
+                if frames is not None:
+                    print('+ saving frames ...')
+                    # plot one figure per timestep merging the populations
+                    for t,frame in enumerate(frames[params['Analysis']['Movie']['from']:params['Analysis']['Movie']['to']]):
+                        fig = plot.figure()
+                        for x in range(refedge):
+                            for y in range(refedge):
+                                # print(x,y, frame[y][x])
+                                if frame[x][y]:
+                                    plot.scatter(x, y, marker='o', c=v['color'], edgecolors='none', s=10 )
+                                else:
+                                    plot.scatter(x, y, marker='o', c='white', edgecolors='none', s=10 )
+                        plot.title( "{0:6.1f}".format((t+params['Analysis']['Movie']['from'])*params['dt']) )
+                        fig.savefig(folder+'/'+str(t)+'.png')
+                        # fig.savefig(folder+'/'+str(t)+'.svg', transparent=True)
+                        plot.close()
+                        fig.clf()
+            # after just compose the video with ffmpeg from the numbered.png
+            # ffmpeg -r 10 -pattern_type glob -i '*.png' -pix_fmt yuv420p closed.mp4
+
+
+
+        ###################################
+        if 'Autocorrelation' in params['Analysis'] and params['Analysis']['Autocorrelation'] and 'spikes' in rec:
+            print('Autocorrelation')
             # Spike Count
             if hasattr(data.spiketrains[0], "__len__"):
                 scores[0] = len(data.spiketrains[0])
             
-            # ISI
-            isitot = isi(data.spiketrains)
-            # print(isitot, len(isitot), np.max(isitot), np.min(isitot))
-            if isinstance(isitot, (np.ndarray)):
-                if len(isitot)>1:
-                    scores[1] = np.mean(isitot) # mean ISI
-                    scores[2] = cv(data.spiketrains) # CV
-
-                    if key in params['Analysis']['ISI']['Populations']:
-                        # Autocorrelogram
-                        ac = acc(params, data.spiketrains, bin_size=params['Analysis']['ISI']['bin_size'], auto=True)
-                        for i,ag in enumerate(ac):
-                            x = np.linspace(-1.*(len(ag)/2), len(ag)/2, len(ag))
-                            fig = plot.figure()
-                            plot.plot(x,ag,linewidth=2)
-                            plot.ylabel('count')
-                            plot.xlabel('Time (bin='+str(params['Analysis']['ISI']['bin_size'])+'ms)')
-                            fig.savefig(folder+'/Autocorrelogram_'+key+addon+'_'+str(i)+'.svg')
-                            plot.close()
-                            fig.clear()
-
-                    # ISI histogram
+            print(key)
+            if key in params['Analysis']['Autocorrelation']['populations']:
+                # Autocorrelogram
+                ac = acc(params, data.spiketrains, bin_size=params['Analysis']['Autocorrelation']['bin_size'], auto=True)
+                for i,ag in enumerate(ac):
+                    x = np.linspace(-1.*(len(ag)/2), len(ag)/2, len(ag))
                     fig = plot.figure()
-                    plot.loglog(range(len(isitot)), isitot)
+                    plot.plot(x,ag,linewidth=2)
                     plot.ylabel('count')
-                    plot.xlabel('ISI (ms)')
-                    fig.savefig(folder+'/ISI_histogram_'+key+addon+'.svg')
+                    plot.xlabel('Time (bin='+str(params['Analysis']['Autocorrelation']['bin_size']*params['dt'])+'ms)')
+                    fig.savefig(folder+'/Autocorrelogram_'+key+addon+'_'+str(i)+'.svg', transparent=True)
                     plot.close()
                     fig.clear()
 
-                    if params['Analysis']['ISI#']:
+
+
+        ###################################
+        if 'ISI' in params['Analysis'] and params['Analysis']['ISI'] and key in params['Analysis']['ISI'] and 'spikes' in rec:
+            print('ISI')
+            # Spike Count
+            if hasattr(data.spiketrains[0], "__len__"):
+                scores[0] = len(data.spiketrains[0])
+
+            # cell selection
+            spikelist = select_spikelist( spiketrains=data.spiketrains, edge=edge, limits=params['Analysis']['ISI'][key]['limits'] )
+
+            # ISI
+            print("time:", params['run_time'], "bins:", params['run_time']/params['Analysis']['ISI'][key]['bin'] )
+            isitot = isi(spikelist, int(params['run_time']/params['Analysis']['ISI'][key]['bin']) )
+            # print("ISI", isitot, isitot.shape)
+            if isinstance(isitot, (np.ndarray)):
+                if len(isitot)>1:
+                    scores[1] = 0.0 # 
+                    scores[2] = 0.0 #
+
+                    # ISI histogram
+                    fig = plot.figure()
+                    plot.semilogy(range(len(isitot)), isitot)
+                    # plot.plot(range(len(isitot)), isitot) 
+                    plot.title("mean:"+str(scores[1])+" CV:"+str(scores[2]))
+                    plot.ylabel('count')
+                    plot.xlabel('ISI (bin=50ms)')
+                    fig.savefig(folder+'/ISI_histogram_'+key+addon+'.svg', transparent=True)
+                    plot.close()
+                    fig.clear()
+
+                    if 'ISI#' in params['Analysis'] and params['Analysis']['ISI#']:
                         # if strictly increasing, then spiking is adapting 
                         # but check that there are no spikes beyond stimulation
                         # if data.spiketrains[0][-1] < params['Injections']['cell']['start'][-1] and all(x<y for x, y in zip(isitot, isitot[1:])):
@@ -248,21 +390,26 @@ def analyse(params, folder, addon='', removeDataFile=False):
                                 plot.ylim([2,12.])
                                 plot.xlabel('Spike Interval #')
                                 plot.ylabel('ISI (ms)')
-                                fig.savefig(folder+'/ISI_interval_'+key+addon+'.svg')
+                                fig.savefig(folder+'/ISI_interval_'+key+addon+'.svg', transparent=True)
                                 plot.close()
                                 fig.clf()
 
 
         ###################################
-        if params['Analysis']['FiringRate'] and 'spikes' in rec:
+        if 'FiringRate' in params['Analysis'] and params['Analysis']['FiringRate'] and 'spikes' in rec:
+            print('FiringRate')
+
+            # spikelist = select_spikelist( spiketrains=data.spiketrains, edge=edge, limits=params['Analysis']['ISI'][key]['limits'] )
+
             # firing rate
             fr = rate(params, data.spiketrains, bin_size=10) # ms
+            # fr = rate(params, spikelist, bin_size=10) # ms
             scores[4] = fr.mean()
             fig = plot.figure()
             plot.plot(fr,linewidth=0.5)
             plot.title("mean firing rate:"+str(scores[4])+" spikes/s")
-            # plot.ylim([.0,150.])
-            fig.savefig(folder+'/firingrate_'+key+addon+'.svg')
+            plot.ylim(params['Analysis']['FiringRate'][key]['firing'])
+            fig.savefig(folder+'/firingrate_'+key+addon+'.svg', transparent=True)
             # plot.xlim([3000.,4000.])
             # fig.savefig(folder+'/zoom_firingrate_'+key+addon+'.svg')
             plot.close()
@@ -283,25 +430,27 @@ def analyse(params, folder, addon='', removeDataFile=False):
             scores[6] = spindle.mean()
             plot.xlabel('Frequency (Hz)')
             plot.ylabel('Power spectrum (µV**2)')
-            fig.savefig(folder+'/FR_Spectrum_'+key+addon+'.svg')
+            fig.savefig(folder+'/FR_Spectrum_'+key+addon+'.svg', transparent=True)
             plot.close()
             fig.clear()
 
 
         ###################################
-        if params['Analysis']['CrossCorrelation'] and 'spikes' in rec:
+        if 'CrossCorrelation' in params['Analysis'] and params['Analysis']['CrossCorrelation'] and 'spikes' in rec:
+            print('CrossCorrelation')
             # cross-correlation
-            scores[7] = acc(params, data.spiketrains, bin_size=10)
+            scores[7] = acc(params, data.spiketrains, bin_size=params['Analysis']['CrossCorrelation']['bin_size'])
             print("CC:", scores[7])
 
 
         ###################################
-        if params['Analysis']['LFP'] and 'v' in rec and 'gsyn_exc' in rec:
+        if 'LFP' in params['Analysis'] and params['Analysis']['LFP'] and 'v' in rec and 'gsyn_exc' in rec:
+            print('LFP')
             lfp = LFP(data)
             vm = data.filter(name = 'v')[0]
             fig = plot.figure()
             plot.plot(lfp)
-            fig.savefig(folder+'/LFP_'+key+addon+'.svg')
+            fig.savefig(folder+'/LFP_'+key+addon+'.svg', transparent=True)
             plot.close()
             fig.clear()
             # # spectrum
@@ -326,16 +475,92 @@ def analyse(params, folder, addon='', removeDataFile=False):
     return scores # to fix: is returning only the last scores!
 
 
+
+
 ###############################################
 # ADDITIONAL FUNCTIONS
+
+
+
+def select_spikelist( spiketrains, edge=None, limits=None ):
+    new_spiketrains = []
+    for i,st in enumerate(spiketrains):
+
+        # reject cells outside limits
+        if edge and limits:
+            # use st entries as indexes to put ones
+            x = int(i % edge)
+            y = int(i / edge)
+            # print(i, x,y)
+            # if (x>10 and x<50) and (y>10 and y<54):
+            if (x>limits[0][0] and x<limits[0][1]) and (y>limits[1][0] and y<limits[1][1]):
+                # print('taken') 
+                new_spiketrains.append( st )
+        # new_spiketrains.append( st )
+        
+    return new_spiketrains
+
+
+
+def phase_coherence(s1, s2, folder, addon, lowcut=.01, highcut=.5, fs=10, order=1):
+    """
+    from: 
+    http://jinhyuncheong.com/jekyll/update/2017/12/10/Timeseries_synchrony_tutorial_and_simulations.html
+    https://towardsdatascience.com/four-ways-to-quantify-synchrony-between-time-series-data-b99136c4a9c9
+
+    Phase coherence is here the instantaneous phase synchrony measuring the phase similarities between two signals at each timepoint.
+    The phase is to the angle of the signal when it is mapped between -pi to pi degrees. 
+    When two signals line up in phase their angular difference becomes zero. 
+    The angles are calculated through the hilbert transform of the signal. 
+    Phase coherence can be quantified by subtracting the angular difference from 1.
+    """
+    from scipy.signal import hilbert, butter, filtfilt
+
+    def butter_bandpass(lowcut, highcut, fs, order=5):
+        nyq = 0.5 * fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        b, a = butter(order, [low, high], btype='band')
+        return b, a
+
+    def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+        b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+        y = filtfilt(b, a, data)
+        return y
+
+    s1 = butter_bandpass_filter(s1,lowcut=lowcut,highcut=highcut,fs=fs,order=order)
+    s2 = butter_bandpass_filter(s2,lowcut=lowcut,highcut=highcut,fs=fs,order=order)
+
+    angle1 = np.angle(hilbert(s1),deg=False)
+    angle2 = np.angle(hilbert(s2),deg=False)
+    phase_coherence = 1-np.sin(np.abs(angle1-angle2)/2)
+    N = len(angle1)
+
+    # Plot results
+    fig,ax = plot.subplots(3,1,figsize=(14,7),sharex=True)
+    ax[0].plot(s1,color='r',label='fr1')
+    ax[0].plot(s2,color='b',label='fr2')
+    ax[0].legend(bbox_to_anchor=(0., 1.02, 1., .102),ncol=2)
+    ax[0].set(xlim=[0,N], title='Band-passed firing rate')
+    ax[1].plot(angle1,color='r')
+    ax[1].plot(angle2,color='b')
+    ax[1].set(ylabel='Angle',title='Angle at each Timepoint',xlim=[0,N])
+    ax[2].plot(phase_coherence)
+    ax[2].set(ylim=[0,1.1],xlim=[0,N],title='Instantaneous Phase Coherence',xlabel='Time',ylabel='Coherence')
+    plot.tight_layout()
+    fig.savefig(folder+'/PhaseCoherence_'+addon+'.svg', transparent=True)
+    plot.close()
+    fig.clear()
+
 
 def LFP(data):
     v = data.filter(name="v")[0]
     g = data.filter(name="gsyn_exc")[0]
+    # g = data.filter(name="gsyn_inh")[0]
     # We produce the current for each cell for this time interval, with the Ohm law:
     # I = g(V-E), where E is the equilibrium for exc, which usually is 0.0 (we can change it)
     # (and we also have to consider inhibitory condictances)
-    i = g*(v) #AMPA
+    iex = g*(v) #AMPA
     # the LFP is the result of cells' currents, with the Coulomb law:
     avg_i_by_t = np.sum(i,axis=1)/i.shape[0] # no distance involved for the moment
     sigma = 0.1 # [0.1, 0.01] # Dobiszewski_et_al2012.pdf
@@ -359,22 +584,6 @@ def adaptation_index(data):
         print(i, interval)
         running_sum = running_sum + ( (isi[i]-isi[i-1]) / (isi[i]+isi[i-1]) )
     return running_sum / len(isi)-k-1
-
-
-
-def load_spikelist( filename, t_start=.0, t_stop=1. ):
-    spiketrains = []
-    # Data is in Neo format inside a pickle file
-    # open the pickle and get the neo block
-    neo_block = pickle.load( open(filename, "rb") )
-    # get spiketrains
-    neo_spikes = neo_block.segments[0].spiketrains
-    for i,st in enumerate(neo_spikes):
-        for t in st.magnitude:
-            spiketrains.append( (i, t) )
-
-    spklist = SpikeList(spiketrains, list(range(len(neo_spikes))), t_start=t_start, t_stop=t_stop)
-    return spklist
 
 
 
@@ -425,28 +634,23 @@ def rate( params, spiketrains, bin_size=10 ):
 
 
 
-def isi( spiketrains ):
+def isi( spiketrains, bins ):
     """
     Mean Inter-Spike Intervals for all spiketrains
     """
-    x = np.zeros(1)
+    isih = np.zeros(bins)
     for st in spiketrains:
-        # print( st.magnitude )
-        # print( np.diff( st.magnitude ) )
-        # print( np.diff( st.magnitude ).astype(int) )
-        # print( np.bincount( np.diff( st.magnitude ).astype(int) ) )
-        # x.append( np.bincount( np.diff( st.magnitude ).astype(int) ) )
-        y = np.bincount( np.diff( st.magnitude ).astype(int) )
-        x = [sum(i) for i in zip_longest(x, y, fillvalue=0.)]
-    return np.array(x)/len(spiketrains)
+        # print("st diff (int)", np.diff( st.magnitude ).astype(int) )
+        isih = isih + np.histogram( np.diff( st.magnitude ).astype(int), len(isih) )[0]
+    return isih
 
 
 
-def cv( spiketrains ):
+def cv( spiketrains, bins ):
     """
     Coefficient of variation
     """
-    ii = isi(spiketrains)
+    ii = isi(spiketrains, bins)
     return np.std(ii) / np.mean(ii)
 
 
@@ -490,70 +694,3 @@ def H(params, limits, steps):
         h = gc * (np.exp((v-v_thresh)/delta_T) -1.) - (1/tau_w)
         fn.append( h )
     return Vm, fn
-
-
-# def VSDI( data ):
-#   v = data.filter(name="v")[0]
-
-#     # avg vm
-#     sheet_indexes = data_store.get_sheet_indexes(sheet_name=sheet, neuron_ids=analog_ids)
-#     positions = data_store.get_neuron_postions()[sheet]
-#     print positions.shape # all 10800
-
-
-#     # #################################################
-#     # # FULL MAP FRAMES - ***** SINGLE TRIAL ONLY *****
-#     # #################################################
-#     # # segs = spont_segs # to visualize only spontaneous activity
-
-#     # positions = numpy.transpose(positions)
-#     # print positions.shape # all 10800
-
-#     # # take the sheet_indexes positions of the analog_ids
-#     # analog_positions = positions[sheet_indexes,:]
-#     # print analog_positions.shape
-#     # # print analog_positions
-
-#     # # # colorbar min=resting, max=threshold
-#     # # norm = ml.colors.Normalize(vmin=-80., vmax=-50., clip=True)
-#     # # mapper = ml.cm.ScalarMappable(norm=norm, cmap=plt.cm.jet)
-#     # # mapper._A = [] # hack to plot the colorbar http://stackoverflow.com/questions/8342549/matplotlib-add-colorbar-to-a-sequence-of-line-plots
-#     # # # ml.rcParams.update({'font.size':22})
-#     # # # ml.rcParams.update({'font.color':'silver'})
-
-#     # for s in segs:
-
-#     #   dist = eval(s.annotations['stimulus'])
-#     #   print dist['radius']
-#     #   if dist['radius'] < 0.1:
-#     #       continue
-
-#     #   s.load_full()
-#     #   # print "s.analogsignalarrays", s.analogsignalarrays # if not pre-loaded, it results empty in loop
-
-#     #   for a in s.analogsignalarrays:
-#     #       # print "a.name: ",a.name
-#     #       if a.name == 'v':
-#     #           print a.shape # (10291, 900)  (instant t, cells' vm)
-
-#     #           for t,vms in enumerate(a):
-#     #               if t/10 > 500:
-#     #                   break
-
-#     #               if t%20 == 0: # each 2 ms
-#     #                   time = '{:04d}'.format(t/10)
-
-#     #                   # # open image
-#     #                   # plt.figure()
-#     #                   # for vm,i,p in zip(vms, analog_ids, analog_positions):
-#     #                   #   # print vm, i, p
-#     #                   #   plt.scatter( p[0][0], p[0][1], marker='o', c=mapper.to_rgba(vm), edgecolors='none' )
-#     #                   #   plt.xlabel(time, color='silver', fontsize=22)
-#     #                   # # cbar = plt.colorbar(mapper)
-#     #                   # # cbar.ax.set_ylabel('mV', rotation=270)
-#     #                   # # close image
-#     #                   # plt.savefig( folder+"/VSDI_spont_"+parameter+"_"+str(sheet)+"_radius"+str(dist['radius'])+"_"+addon+"_time"+time+".svg", dpi=300, transparent=True )
-#     #                   # plt.close()
-#     #                   # gc.collect()
-
-#     #   s.release()

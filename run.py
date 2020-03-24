@@ -102,6 +102,7 @@ if opts.param_file != '':
     with open(opts.param_file, 'r') as pfile:
         pstring = pfile.read()
         params = eval(pstring)
+        pfile.close()
 else:
     print("\nERROR: you must specify a parameter file!")
     sys.exit(2)
@@ -118,12 +119,22 @@ if opts.search_file:
 
 combinations = [{'default':''}] # init
 if search:
+    print(search)
     # create parameter combinations
     testParams = sorted(search) # give an order to dict (by default unordered)
-    # create an array of dictionaries:
-    # each dict being the joining of one of the testKey and a value testVal
-    # each testVal is produced by internal product of all array in testParams
-    combinations = [dict(list(zip(testParams, testVal))) for testVal in it.product(*(search[testKey] for testKey in testParams))]
+    if len(testParams)>1:
+        # create an array of dictionaries:
+        # each dict being the joining of one of the testKey and a value testVal
+        # each testVal is produced by internal product of all array in testParams
+        combinations = [dict(list(zip(testParams, testVal))) for testVal in it.product(*(search[testKey] for testKey in testParams))]
+    else:
+        for testKey in testParams:
+            print("testKey",testKey)
+
+            combinations = []
+            for testVal in search[testKey]:
+                combinations.append({testKey:testVal})
+            print(combinations)
 
 
 # run combinations
@@ -141,7 +152,11 @@ for i,comb in enumerate(combinations):
     # save parameters in the data_folder
     if not os.path.exists(opts.data_folder):
         os.makedirs(opts.data_folder)
-    shutil.copy('./'+opts.param_file, opts.data_folder+'/'+str(comb)+'_'+opts.param_file)
+
+    param_file_name = opts.data_folder+'/'+str(comb)+'_'+opts.param_file
+    with open(param_file_name, 'w') as pfile:
+        pfile.write( str(params) )
+        pfile.close()
 
     if not opts.analysis:
         Populations = h.build_network(sim, params)
@@ -158,13 +173,18 @@ for i,comb in enumerate(combinations):
         if i == 0:
             with open(opts.data_folder+'/map.csv', "w", newline="") as csvfile:
                 fh = csv.writer(csvfile)
-                fh.writerow( ['#'+testParams[1]+':['+",".join(map(str, search[testParams[1]]))+"]" ] )
-                fh.writerow( ['#'+testParams[0]+':['+",".join(map(str, search[testParams[0]]))+"]" ] )
+                if len(testParams)>1:
+                    fh.writerow( ['#'+testParams[1]+':['+",".join(map(str, search[testParams[1]]))+"]" ] )
+                    fh.writerow( ['#'+testParams[0]+':['+",".join(map(str, search[testParams[0]]))+"]" ] )
+                else:
+                    fh.writerow( ['#'+testParams[0]+':['+",".join(map(str, search[testParams[0]]))+"]" ] )
+
 
         info.append(scores) # current score
         
-        if (i+1)%len(search[testParams[1]]) == 0:
-            with open(opts.data_folder+'/map.csv', 'a') as csvfile:
-                fh = csv.writer(csvfile)
-                fh.writerow( info )
-                info = []
+        if len(testParams)>1:
+            if (i+1)%len(search[testParams[1]]) == 0:
+                with open(opts.data_folder+'/map.csv', 'a') as csvfile:
+                    fh = csv.writer(csvfile)
+                    fh.writerow( info )
+                    info = []

@@ -54,6 +54,10 @@ def modify_populations(t, params, populations):
 
 
 def build_network(sim, params):
+    print("Setting up the Network ...")
+    timer = Timer()
+    timer.reset()
+
     sim.setup( timestep=params['dt'] )
 
     populations = {}
@@ -65,8 +69,14 @@ def build_network(sim, params):
 
         if 'structure' in popVal:
             populations[popKey] = sim.Population( number, popVal['type'], cellparams=popVal['cellparams'], structure=popVal['structure'])
-            # print("population positions:", populations[popKey].positions)
+
+            # printout network stats
             # populations[popKey].calculate_size(number)
+            positions = popVal['structure'].generate_positions(number)
+            #print(popKey, "shape:", positions.shape, "max position:", np.max(positions))
+            # for cell in range(len(positions[0])):
+            #     print(positions[0][cell], positions[1][cell])
+
         else:
             populations[popKey] = sim.Population( number, popVal['type'], cellparams=popVal['cellparams'])
 
@@ -74,17 +84,34 @@ def build_network(sim, params):
 
     projections = {}
     for projKey,projVal in params['Projections'].items():
-        delay = projVal['delay'] if 'delay' in projVal else params['dt']
         projections[projKey] = sim.Projection(
             populations[ projVal['source'] ],
             populations[ projVal['target'] ],
             connector = projVal['connector'],
-            synapse_type = projVal['synapse_type'](weight = projVal['weight'], delay=delay),
+            synapse_type = projVal['synapse_type'],
             receptor_type = projVal['receptor_type'],
+            space = projVal['space'],
         )
-        # print("projections:", projections[projKey].size())
-        # if projKey=='py_py':
-        #     print("projections:", projections[projKey].get(["weight", "delay"], format="list") )
+        if 'weight' in projVal:
+            projections[projKey].set(weight=projVal['weight'])
+        if 'delay' in projVal:
+            projections[projKey].set(delay=projVal['delay'])
+
+        # # printout connectivity stats
+        # if not "ext" in projKey:
+        #     print(projKey, "- projections:", projections[projKey].size())
+        #     print(projKey, "- conns per neuron:",projections[projKey].size()/params['Populations'][projVal['target']]['n'])
+        #     # projList = projections[projKey].get(["weight", "delay"], format="list")
+        #     # print(projKey, "- conn per neuron (border):", projList[:20] ) # first 20 units
+        #     # print(projKey, "- conn per neuron (central):", projList[int(len(projList)/2)-20:int(len(projList)/2)+20] ) # mid 40 units
+        #     # mean_dist = 0
+        #     # for conn in projList:
+        #     #     a = np.array([conn[0]%64, conn[0]/64])
+        #     #     b = np.array([conn[1]%64, conn[1]/64])
+        #     #     mean_dist += np.linalg.norm(a-b)
+        #     # mean_dist /= len(projList)
+        #     # # mean_dist 
+        #     # print(projKey, "- mean conn distance", mean_dist)
 
     for modKey,modVal in params['Modifiers'].items():
         if type(modVal['cells']['start']) == float:
@@ -100,6 +127,9 @@ def build_network(sim, params):
         for key,value in modVal['properties'].items():
             populations[modKey][ populations[modKey].id_to_index(list(cells[ start:end ])) ].set(**{key:value})
 
+    simCPUtime = timer.elapsedTime()
+    print("... the simulation took %s ms to setup." % str(simCPUtime))
+
     return populations
 
 
@@ -111,11 +141,14 @@ def run_simulation(sim, params, populations):
     # modpop = partial(modify_populations, populations=populations)
     # sim.run(params['run_time'], callbacks=[modpop])
     simCPUtime = timer.elapsedTime()
-    print("... The simulation took %s ms to run." % str(simCPUtime))
+    print("... the simulation took %s ms to run." % str(simCPUtime))
 
 
 def perform_injections(params, populations):
     for modKey,modVal in params['Injections'].items():
+        # if isinstance(modVal['spike_times'], (list)):
+        #     source = modVal['source'](spike_times=modVal['spike_times'])
+        # elif
         if isinstance(modVal['start'], (list)):
             source = modVal['source'](times=modVal['start'], amplitudes=modVal['amplitude'])
         else:
@@ -124,6 +157,11 @@ def perform_injections(params, populations):
 
 
 def record_data(params, populations):
+    ## Record positions
+    # populations = {}
+    # for popKey,popVal in params['Populations'].items():
+    #     print("population positions:", populations[popKey].positions)
+    ## Record data
     for recPop, recVal in params['Recorders'].items():
         for elKey,elVal in recVal.items():
             #populations[recPop].record( None )
@@ -146,10 +184,16 @@ def record_data(params, populations):
 
 
 def save_data(populations, folder, addon=''):
-    print("saving data")
+    print("Saving Data ...")
+    timer = Timer()
+    timer.reset()
+
     for key,p in populations.items():
         if key != 'ext':
             data = p.get_data()
             p.write_data(folder+'/'+key+addon+'.pkl', annotations={'script_name': __file__})
+
+    simCPUtime = timer.elapsedTime()
+    print("... the simulation took %s ms to save data." % str(simCPUtime))
 
 
