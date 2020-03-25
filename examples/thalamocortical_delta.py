@@ -5,8 +5,11 @@
 # start the docker image (mapping current directory into the container):
 # $ docker run -v `pwd`:`pwd` -w `pwd` -i -t tessera /bin/bash
 
-# Run simple code
+# Run one simulation
 # python run.py --folder test --params thalamocortical_delta.py nest
+
+# Run parameter search
+# python run.py --folder test --params thalamocortical_delta.py --search search.py nest
 
 # Analysis only
 # python run.py --folder test --params thalamocortical_delta.py --analysis true nest
