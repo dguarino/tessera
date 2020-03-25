@@ -4,17 +4,6 @@
 # docker build --no-chache -t tessera .
 # docker ps
 # docker run -e DISPLAY=$DISPLAY -v `pwd`:`pwd` -w `pwd` -i -t tessera /bin/bash
-#
-# Usage examples
-#
-# Run simple code:
-# python run.py --folder test --params params_Cx.py nest
-#
-# Search Example:
-# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --map yes nest
-#
-# Analysis Example:
-# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --analysis true nest
 
 FROM neuralensemble/simulationx
 
