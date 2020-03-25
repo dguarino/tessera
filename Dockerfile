@@ -41,3 +41,5 @@ WORKDIR $HOME
 RUN git clone https://github.com/dguarino/tessera.git
 
 WORKDIR $HOME/tessera
+
+CMD ["execute.bash"]
