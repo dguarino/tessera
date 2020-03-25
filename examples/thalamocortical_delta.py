@@ -2,21 +2,15 @@
 # Usage:
 # Examples
 
-# start the docker image:
-# $ docker run -v `pwd`:`pwd` -w `pwd` -i -t thalamus /bin/bash
+# start the docker image (mapping current directory into the container):
+# $ docker run -v `pwd`:`pwd` -w `pwd` -i -t tessera /bin/bash
 
 # Run simple code
-# python run.py --folder test --params epsp_response.py nest
+# python run.py --folder test --params thalamocortical_delta.py nest
 
-# Search Example:
-# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --map yes nest
-# python run.py --folder IPSPsearch --params ipsp_response.py --search search.py --map yes nest
-# python plot_map.py
+# Analysis only
+# python run.py --folder EPSPsearch --params thalamocortical_delta.py --analysis true nest
 
-# Analysis Example
-# python run.py --folder EPSPsearch --params epsp_response.py --search search.py --analysis true nest
-
-# ./execute.bash
 # ------------------------------------------------------------------------------
 {
     'run_time': 30000, # ms
