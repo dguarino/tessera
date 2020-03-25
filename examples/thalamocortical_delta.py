@@ -9,7 +9,7 @@
 # python run.py --folder test --params thalamocortical_delta.py nest
 
 # Analysis only
-# python run.py --folder EPSPsearch --params thalamocortical_delta.py --analysis true nest
+# python run.py --folder test --params thalamocortical_delta.py --analysis true nest
 
 # ------------------------------------------------------------------------------
 {
