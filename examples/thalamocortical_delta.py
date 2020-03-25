@@ -174,9 +174,9 @@
             'source' : 'tc',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .001,
+            'weight' : .003,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -184,9 +184,9 @@
             'source' : 'tc',
             'target' : 'inh',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .001,
+            'weight' : .003,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -248,9 +248,9 @@
             'source' : 'py',
             'target' : 'tc',
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .000001,
+            'weight' : .0005,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -258,9 +258,9 @@
             'source' : 'py',
             'target' : 're',
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .000001,
+            'weight' : .0005,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
