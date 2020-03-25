@@ -31,7 +31,7 @@
         'tc' : {
             'n': 100,
             'type' :  sim.EIF_cond_alpha_isfa_ista,
-            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=13886)),
+            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random'),#, rng=sim.NumpyRNG(seed=13886)),
             'cellparams' : {
                 'tau_syn_E'  : 5.0,   # ms
                 'tau_syn_I'  : 5.0,   # ms
@@ -51,7 +51,7 @@
         're' : {
             'n': 100,
             'type' :  sim.EIF_cond_alpha_isfa_ista,
-            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=13886)),
+            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random'),#, rng=sim.NumpyRNG(seed=13886)),
             'cellparams' : {
                 'tau_syn_E'  : 5.0,   # ms
                 'tau_syn_I'  : 5.0,   # ms
@@ -173,7 +173,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .000001,
+            'weight' : .001,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -183,7 +183,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .000001,
+            'weight' : .001,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
