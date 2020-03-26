@@ -14,16 +14,12 @@ MAINTAINER domenico.guarino@gmail.com
 CMD export DISPLAY=0.0
 
 ##########################################################
-# Additional prerequisite libraries
-
+# cleanup
 RUN apt-get autoremove -y && \
     apt-get clean
 
-
 ##########################################################
 # the tessera environment
-
 WORKDIR $HOME
 RUN git clone https://github.com/dguarino/tessera.git
-
 WORKDIR $HOME/tessera
