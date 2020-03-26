@@ -7,13 +7,10 @@
 
 FROM neuralensemble/simulationx
 
-MAINTAINER domenico.guarino@cnrs.fr
+MAINTAINER domenico.guarino@gmail.com
 
 ##########################################################
 # Xserver
-#CMD export DISPLAY=:0
-#CMD export DISPLAY=:0.0
-#ENV DISPLAY :0
 CMD export DISPLAY=0.0
 
 ##########################################################
