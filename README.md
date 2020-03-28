@@ -85,10 +85,10 @@ Enable the current user to launch docker images
 sudo usermod -a -G docker $USER
 ```
 
-Move to the folder "neuromod" checked out from github and build the image
+Move to the folder "tessera" checked out from github and build the image
 
 ```
-docker build -t neuromod .
+docker build -t tessera .
 ```
 
 Check the existence of the image
