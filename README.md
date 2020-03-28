@@ -97,15 +97,15 @@ Check the existence of the image
 docker images
 ```
 
-Start a container with the "neuromod" image
+Start a container with the "tessera" image
 ```
-docker run -i -t neuromod /bin/bash
+docker run -i -t tessera /bin/bash
 ```
 
 And to allow for development bind-mount your local files in the container
 
 ```
-docker run -v `pwd`:`pwd` -w `pwd` -i -t neuromod /bin/bash
+docker run -v `pwd`:`pwd` -w `pwd` -i -t tessera /bin/bash
 
 ```
 
