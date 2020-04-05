@@ -98,8 +98,6 @@
         # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0035}
         # {'Projections.inh_inh.weight': 0.0025, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0045} Delta high activity
         # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0045} Delta low activity
-
-        # {'Projections.py_inh.weight': 0.0015, 'Projections.inh_inh.weight': 0.0005, 'Projections.inh_py.weight': 0.0025, 'Projections.py_py.weight': 0.0035}
         'ext_py' : {
             'source' : 'ext',
             'target' : 'py',
