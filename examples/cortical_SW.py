@@ -39,7 +39,6 @@
             'type': sim.EIF_cond_alpha_isfa_ista,
             # 'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='sequential'),
             'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=13886)),
-            # 'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='random'),
             'cellparams': {
                 'cm'         : 0.15,  # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/111/
                 'tau_refrac' : 2.,    # ms, refractory period ()
@@ -47,8 +46,8 @@
                 'v_thresh'   : -52.0, # mV, fixed spike threshold (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107)
                 # Slow Waves - No ACh
                 'tau_m'      : 17.0,  # ms, time constant of leak conductance (cm/gl, gl=8nS)
-                'v_rest'     : -75.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                'v_reset'    : -70.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'v_rest'     : simrand.RandomDistribution('normal', mu=-75., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_reset'    : simrand.RandomDistribution('normal', mu=-70., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'a'          : 1.0,   # nS, conductance of adaptation variable (Naud et al. 2008)
                 'b'          : .01,  # nA, increment to the adaptation variable (Naud et al. 2008)
                 'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
@@ -65,7 +64,6 @@
             'type': sim.EIF_cond_alpha_isfa_ista,
             # 'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='sequential'),
             'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='random', rng=sim.NumpyRNG(seed=13886)),
-            # 'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='random'),
             'cellparams': {
                 'cm'         : 0.059, # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/106)
                 'tau_refrac' : 2.,    # ms, refractory period ()
@@ -73,8 +71,8 @@
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (fix McCormickPrince1986, Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107, 106)
                 # Slow Waves - No ACh
                 'tau_m'      : 5.0,   # ms, time constant of leak conductance (cm/gl, gl=11.8nS) s=F/S 10-9/10-9
-                'v_rest'     : -56.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                'v_reset'    : -74.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'v_rest'     : simrand.RandomDistribution('normal', mu=-56., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_reset'    : simrand.RandomDistribution('normal', mu=-74., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'a'          : 0.5,   # nS, conductance of adaptation variable (Naud et al. 2008)
                 'b'          : 0.01,  # nA, increment to the adaptation variable (Naud et al. 2008)
                 'tau_w'      : 28.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
@@ -98,6 +96,7 @@
         # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0035}
         # {'Projections.inh_inh.weight': 0.0025, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0045} Delta high activity
         # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0045} Delta low activity
+
         'ext_py' : {
             'source' : 'ext',
             'target' : 'py',

@@ -7,15 +7,14 @@
     # $ docker run -v `pwd`:`pwd` -w `pwd` -i -t thalamus /bin/bash
 
     # Run simple code
-    # python run.py --folder test --params epsp_response.py nest
+    # python run.py --folder test --params response.py nest
 
     # Search Example:
-    # python run.py --folder EPSPsearch --params epsp_response.py --search search.py --map yes nest
-    # python run.py --folder IPSPsearch --params ipsp_response.py --search search.py --map yes nest
+    # python run.py --folder EPSPsearch --params response.py --search search.py --map yes nest
     # python plot_map.py
 
     # Analysis Example
-    # python run.py --folder EPSPsearch --params epsp_response.py --search search.py --analysis true nest
+    # python run.py --folder EPSPsearch --params response.py --search search.py --analysis true nest
 
     # ./execute.bash
     # ------------------------------------------------------------------------------

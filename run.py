@@ -38,6 +38,7 @@ from pyNN.utility import init_logging
 from pyNN.utility import normalized_filename
 from pyNN.utility import Timer
 from pyNN.space import Grid2D
+import pyNN.random as simrand
 
 import helpers as h
 import analysis as a
