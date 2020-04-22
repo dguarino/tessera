@@ -139,6 +139,7 @@ if search:
 
 
 # run combinations
+np.random.seed(2**32-1) # impose seed to numpy
 info = []
 totc = len(combinations)
 for i,comb in enumerate(combinations):

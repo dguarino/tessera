@@ -38,7 +38,7 @@
             # 'n': 1600, # units
             'type': sim.EIF_cond_alpha_isfa_ista,
             # 'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='sequential'),
-            'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=13886)),
+            'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams': {
                 'cm'         : 0.15,  # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/111/
                 'tau_refrac' : 2.,    # ms, refractory period ()
@@ -53,17 +53,13 @@
                 'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
                 'tau_syn_E'  : 3.,    # ms, 
                 'tau_syn_I'  : 10.0,   # ms, 
-                # Asynchronous Irregular - ACh
-                # ...
-                # 'tau_syn_E'  : 3.,    # ms
-                # 'tau_syn_I'  : 10.0,   # ms
             }
         },
         'inh' : { # Fast Spiking 
             'n': {'ref':'py','ratio':0.25},
             'type': sim.EIF_cond_alpha_isfa_ista,
             # 'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='sequential'),
-            'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='random', rng=sim.NumpyRNG(seed=13886)),
+            'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams': {
                 'cm'         : 0.059, # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/106)
                 'tau_refrac' : 2.,    # ms, refractory period ()
@@ -78,10 +74,6 @@
                 'tau_w'      : 28.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
                 'tau_syn_E'  : 5.,    # ms
                 'tau_syn_I'  : 10.,   # ms
-                # Asynchronous Irregular - ACh
-                # ...
-                # 'tau_syn_E'  : 3.,    # ms
-                # 'tau_syn_I'  : 10.0,   # ms
             }
         },
     },
@@ -101,7 +93,7 @@
             'source' : 'ext',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.FixedProbabilityConnector(.02, rng=sim.NumpyRNG(342134)),
+            'connector' : sim.FixedProbabilityConnector(.02, rng=sim.NumpyRNG(2**32-1)),
             'synapse_type' : sim.StaticSynapse(),
             'weight' : .1, # µS
             # no need for delay
@@ -113,9 +105,9 @@
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
             # different seeds give different realisations of the SW spectrum, no rng abolishes SWs
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(342134)), # -0.3 results in the 0.1 probability of connecting at 7.5 grid distance
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 7.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0035, # µS
+            'weight' : .0025, # µS
             'delay' : .5, # ms, YgerBoustaniDestexheFregnac2011
             'receptor_type' : 'excitatory'
         },
@@ -134,9 +126,9 @@
             'source' : 'py',
             'target' : 'inh',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(342134)), # -0.3 results in the 0.1 probability of connecting at 7.5 grid distance
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 7.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0045, # µS
+            'weight' : .0015, # µS
             'delay' : .5, # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -155,9 +147,9 @@
             'source' : 'inh',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(342134)), # -0.3 results in the 0.1 probability of connecting at 4.5 grid distance
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 4.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0045, # µS
+            'weight' : .0015, # µS
             'delay' : .5, # ms, 
             'receptor_type' : 'inhibitory'
         },
@@ -176,7 +168,7 @@
             'source' : 'inh',
             'target' : 'inh',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(342134)), # -0.3 results in the 0.1 probability of connecting at 4.5 grid distance
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 4.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
             'weight' : .0015, # µS
             'delay' : .5, # ms, 
