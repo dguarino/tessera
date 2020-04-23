@@ -19,7 +19,7 @@
 # ./execute.bash
 # ------------------------------------------------------------------------------
 {
-    'run_time': 30000, # ms
+    'run_time': 20000, # ms, 20 sec
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -46,6 +46,8 @@
                 'v_thresh'   : -52.0, # mV, fixed spike threshold (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107)
                 # Slow Waves - No ACh
                 'tau_m'      : 17.0,  # ms, time constant of leak conductance (cm/gl, gl=8nS)
+                # 'v_rest'     : -75.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                # 'v_reset'    : -70.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'v_rest'     : simrand.RandomDistribution('normal', mu=-75., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
                 'v_reset'    : simrand.RandomDistribution('normal', mu=-70., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'a'          : 1.0,   # nS, conductance of adaptation variable (Naud et al. 2008)
@@ -53,6 +55,10 @@
                 'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
                 'tau_syn_E'  : 3.,    # ms, 
                 'tau_syn_I'  : 10.0,   # ms, 
+                # Asynchronous Irregular - ACh
+                # ...
+                # 'tau_syn_E'  : 3.,    # ms
+                # 'tau_syn_I'  : 10.0,   # ms
             }
         },
         'inh' : { # Fast Spiking 
@@ -67,6 +73,8 @@
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (fix McCormickPrince1986, Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107, 106)
                 # Slow Waves - No ACh
                 'tau_m'      : 5.0,   # ms, time constant of leak conductance (cm/gl, gl=11.8nS) s=F/S 10-9/10-9
+                # 'v_rest'     : -56.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                # 'v_reset'    : -74.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'v_rest'     : simrand.RandomDistribution('normal', mu=-56., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
                 'v_reset'    : simrand.RandomDistribution('normal', mu=-74., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'a'          : 0.5,   # nS, conductance of adaptation variable (Naud et al. 2008)
@@ -80,14 +88,6 @@
 
 
     'Projections' : {
-
-        # SW candidates
-        # {'Projections.inh_inh.weight': 0.0005, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0025}
-        # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0025, 'Projections.py_py.weight': 0.0015, 'Projections.py_inh.weight': 0.0005}
-        # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0035, 'Projections.py_py.weight': 0.0025, 'Projections.py_inh.weight': 0.0015} 
-        # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0035}
-        # {'Projections.inh_inh.weight': 0.0025, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0045} Delta high activity
-        # {'Projections.inh_inh.weight': 0.0015, 'Projections.inh_py.weight': 0.0045, 'Projections.py_py.weight': 0.0035, 'Projections.py_inh.weight': 0.0045} Delta low activity
 
         'ext_py' : {
             'source' : 'ext',
@@ -104,7 +104,6 @@
             'source' : 'py',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            # different seeds give different realisations of the SW spectrum, no rng abolishes SWs
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 7.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
             'weight' : .0025, # µS
@@ -170,7 +169,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 4.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0015, # µS
+            'weight' : .0025, # µS
             'delay' : .5, # ms, 
             'receptor_type' : 'inhibitory'
         },
