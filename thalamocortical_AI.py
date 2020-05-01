@@ -16,7 +16,7 @@
 
 # ------------------------------------------------------------------------------
 {
-    'run_time': 30000, # ms
+    'run_time': 3000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -34,7 +34,7 @@
         'tc' : {
             'n': 100,
             'type' :  sim.EIF_cond_alpha_isfa_ista,
-            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random'),#, rng=sim.NumpyRNG(seed=13886)),
+            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random'),#, rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams' : {
                 'tau_syn_E'  : 5.0,   # ms
                 'tau_syn_I'  : 5.0,   # ms
@@ -42,19 +42,19 @@
                 'delta_T'    : 2.5,   # mV, steepness of exponential approach to threshold (Destexhe2009)
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (https://www.neuroelectro.org/neuron/190/)
                 'cm'         : 0.16,  # nF, tot membrane capacitance (Bloomfield Hamos Sherman 1987)
-                # Delta
-                'tau_m'      : 18.,   # ms, time constant of leak conductance (cm/gl, with gl=0.01)
-                'v_rest'     : -65.0, # mV, resting potential (McCormick Pape 1988)
-                'v_reset'    : -46.0, # mV, reset after spike
-                'a'          : 28.,   # nS, spike-frequency adaptation
-                'b'          : .02,   # nA, increment to the adaptation variable
-                'tau_w'      : 270.0, # ms, time constant of adaptation variable
+                # With ACh
+                'tau_m'      : 16.,   # ms, time constant of leak conductance (cm/gl, with gl=0.01)
+                'v_rest'     : -55.0, # mV, resting potential (McCormick Pape 1988)
+                'v_reset'    : -50.0, # mV, reset after spike
+                'a'          : .0,    # nS, spike-frequency adaptation
+                'b'          : .01,    # nA, increment to the adaptation variable
+                'tau_w'      : 200.0, # ms, time constant of adaptation variable
             }
         },
         're' : {
             'n': 100,
             'type' :  sim.EIF_cond_alpha_isfa_ista,
-            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random'),#, rng=sim.NumpyRNG(seed=13886)),
+            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random'),#, rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams' : {
                 'tau_syn_E'  : 5.0,   # ms
                 'tau_syn_I'  : 5.0,   # ms
@@ -62,64 +62,58 @@
                 'delta_T'    : 2.5,   # mV, steepness of exponential approach to threshold (Destexhe2009)
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (https://www.neuroelectro.org/neuron/190/)
                 'cm'         : 0.20,  # nF, tot membrane capacitance (https://www.neuroelectro.org/neuron/190/, Uhlrich Cucchiaro Humphrey Sherman 1991)
-                # Delta  -  McCormickPape1990
-                'tau_m'      : 15.,  # ms, time constant of leak conductance (cm/gl)
-                'v_rest'     : -65.0, # mV, resting potential (McCormick Prince 1986)
-                'v_reset'    : -41.0, # mV, reset after spike
-                'a'          : 14.,    # nS, subthreshold adaptation
-                'b'          : .01,     # nA, spike-dependent adaptation
-                'tau_w'      : 270.0, # ms, time constant of adaptation variable (Cerina et al. 2015)
+                # With ACh
+                'tau_m'      : 20.,  # ms, time constant of leak conductance (cm/gl, with gl=0.01)
+                'v_rest'     : -85.0, # mV, resting potential (McCormick Prince 1986)
+                'v_reset'    : -45.0, # mV, reset after spike
+                'a'          : 28.,    # nS, spike-frequency adaptation
+                'b'          : .0,     # nA, spike-dependent adaptation
+                'tau_w'      : 200.0, # ms, time constant of adaptation variable
             }
         },
 
         # CORTEX
         'py' : { # Regular Spiking 
             'n': 64*64, # units have to be placed in a squared (aspect ratio 1) grid 
-            # 'n': 1600, # units
             'type': sim.EIF_cond_alpha_isfa_ista,
-            # 'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='sequential'),
             'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams': {
+                'tau_syn_E'  : 3.,    # ms, 
+                'tau_syn_I'  : 10.0,   # ms, 
                 'cm'         : 0.15,  # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/111/
                 'tau_refrac' : 2.,    # ms, refractory period ()
                 'delta_T'    : 0.8,   # mV, steepness of exponential approach to threshold (Naud et al. 2008)
                 'v_thresh'   : -52.0, # mV, fixed spike threshold (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107)
-                # Slow Waves - No ACh
-                'tau_m'      : 17.0,  # ms, time constant of leak conductance (cm/gl, gl=8nS)
-                'v_rest'     : simrand.RandomDistribution('normal', mu=-75., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                'v_reset'    : simrand.RandomDistribution('normal', mu=-70., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                'a'          : 1.0,   # nS, conductance of adaptation variable (Naud et al. 2008)
-                'b'          : .01,  # nA, increment to the adaptation variable (Naud et al. 2008)
+                # ACh (McCormickPrince1986 Fig. 3B)
+                'tau_m'      : 20,  # ms, time constant of leak conductance (cm/gl, gl=7.5nS) PRE
+                'v_rest'     : -53.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_reset'    : -55.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'a'          : .1,   # nS, conductance of adaptation variable (Naud et al. 2008)
+                'b'          : 0.1, # nA, increment to the adaptation variable (Naud et al. 2008)
                 'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
-                'tau_syn_E'  : 3.,    # ms, 
-                'tau_syn_I'  : 10.0,   # ms, 
             }
         },
         'inh' : { # Fast Spiking 
             'n': {'ref':'py','ratio':0.25},
             'type': sim.EIF_cond_alpha_isfa_ista,
-            # 'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='sequential'),
             'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams': {
+                'tau_syn_E'  : 5.,    # ms
+                'tau_syn_I'  : 10.,   # ms
                 'cm'         : 0.059, # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/106)
                 'tau_refrac' : 2.,    # ms, refractory period ()
                 'delta_T'    : 3.,    # mV, steepness of exponential approach to threshold (Naud et al. 2008)
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (fix McCormickPrince1986, Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107, 106)
-                # Slow Waves - No ACh
-                'tau_m'      : 5.0,   # ms, time constant of leak conductance (cm/gl, gl=11.8nS) s=F/S 10-9/10-9
-                # 'v_rest'     : -56.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                # 'v_reset'    : -74.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                'v_rest'     : simrand.RandomDistribution('normal', mu=-56., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                'v_reset'    : simrand.RandomDistribution('normal', mu=-74., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                'a'          : 0.5,   # nS, conductance of adaptation variable (Naud et al. 2008)
-                'b'          : 0.01,  # nA, increment to the adaptation variable (Naud et al. 2008)
-                'tau_w'      : 28.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
-                'tau_syn_E'  : 5.,    # ms
-                'tau_syn_I'  : 10.,   # ms
+                # ACh (McCormickPrince1986 Fig. 3B)
+                'tau_m'      : 25,  # ms, time constant of leak conductance (cm/gl, gl=6nS) POST1
+                'v_rest'     : -53.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_reset'    : -55.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'a'          : .1,   # nS, conductance of adaptation variable (Naud et al. 2008)
+                'b'          : 0.1, # nA, increment to the adaptation variable (Naud et al. 2008)
+                'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
             }
         },
     },
-
 
     'Projections' : {
 
@@ -140,7 +134,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
             'receptor_type' : 'excitatory',
             'synapse_type' : sim.StaticSynapse(),
-            'connector' : sim.DistanceDependentProbabilityConnector("d<2", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("d<2", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'weight' : .01, # µS
             'delay' : .2, 
         },
@@ -150,7 +144,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
             'receptor_type' : 'inhibitory',
             'synapse_type' : sim.StaticSynapse(),
-            'connector' : sim.DistanceDependentProbabilityConnector("d<3", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("d<3", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'weight' : .02, # µS (SohalPangratzRudolphHuguenard2006, SanchezMcCormick1997, LamSherman2011)
             'delay' : .2, 
         },        
@@ -160,7 +154,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
             'receptor_type' : 'inhibitory',
             'synapse_type' : sim.StaticSynapse(),
-            'connector' : sim.DistanceDependentProbabilityConnector("d<3", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("d<3", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'weight' : .001, # µS
             'delay' : .2, 
         },
@@ -170,9 +164,9 @@
             'source' : 'tc',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .003,
+            'weight' : .006,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -180,9 +174,9 @@
             'source' : 'tc',
             'target' : 'inh',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .003,
+            'weight' : .006,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -246,7 +240,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0005,
+            'weight' : .001,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -256,7 +250,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,10), (0,10), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(1235342134)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0005,
+            'weight' : .001,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -378,3 +372,4 @@
     },
 
 }
+
