@@ -19,7 +19,7 @@
 # ./execute.bash
 # ------------------------------------------------------------------------------
 {
-    'run_time': 20000, # ms
+    'run_time': 30000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -33,6 +33,49 @@
             }
         },
 
+        # THALAMUS
+        'tc' : {
+            'n': 16*16, # Npy * 0.0625 (Destexhe)
+            'type' :  sim.EIF_cond_alpha_isfa_ista,
+            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
+            'cellparams' : {
+                'tau_syn_E'  : 3.0,   # ms
+                'tau_syn_I'  : 7.0,   # ms
+                'tau_refrac' : 2.5,   # ms, refractory period (ReinagelReid2000)
+                'delta_T'    : 2.5,   # mV, steepness of exponential approach to threshold (Destexhe2009)
+                'v_thresh'   : -50.0, # mV, fixed spike threshold (https://www.neuroelectro.org/neuron/190/)
+                'cm'         : 0.16,  # nF, tot membrane capacitance (Bloomfield Hamos Sherman 1987)
+                # Spindles
+                'tau_m'      : 17.,  # ms, time constant of leak conductance (cm/gl, with gl=0.01)
+                'v_rest'     : -63.0, # mV, resting potential
+                'v_reset'    : -48.0, # mV, reset after spike
+                'a'          : 26.,    # nS, spike-frequency adaptation
+                'b'          : .02,   # nA, increment to the adaptation variable
+                'tau_w'      : 270.0, # ms, time constant of adaptation variable
+            }
+        },
+        're' : {
+            'n': 16*16, # Npy * 0.0625 (Destexhe)
+            'type' :  sim.EIF_cond_alpha_isfa_ista,
+            'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
+            'cellparams' : {
+                'tau_syn_E'  : 3.0,   # ms
+                'tau_syn_I'  : 7.0,   # ms
+                'tau_refrac' : 2.5,   # ms, refractory period (ReinagelReid2000)
+                'delta_T'    : 2.5,   # mV, steepness of exponential approach to threshold (Destexhe2009)
+                'v_thresh'   : -50.0, # mV, fixed spike threshold (https://www.neuroelectro.org/neuron/190/)
+                'cm'         : 0.20,  # nF, tot membrane capacitance (https://www.neuroelectro.org/neuron/190/, Uhlrich Cucchiaro Humphrey Sherman 1991)
+                # Spindles
+                'tau_m'      : 15.,   # ms, time constant of leak conductance (cm/gl, with gl=0.01)
+                'v_rest'     : -70.0, # mV, resting potential
+                'v_reset'    : -41.0, # mV, reset after spike (McCormick1992, Toubul and Brette 2008)
+                'a'          : 28.,   # nS, 
+                'b'          : .02,   # nA, spike-dependent adaptation
+                'tau_w'      : 270.0, # ms, time constant of adaptation variable
+            }
+        },
+
+        # CORTEX
         'py' : { # Regular Spiking 
             'n': 64*64, # units have to be placed in a squared (aspect ratio 1) grid 
             'type': sim.EIF_cond_alpha_isfa_ista,
@@ -77,44 +120,97 @@
                 'tau_w'      : 28.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
             }
         },
+
     },
 
 
     'Projections' : {
 
+        # THALAMIC
+        'ext_tc' : {
+            'source' : 'ext',
+            'target' : 'tc',
+            'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
+            'receptor_type' : 'excitatory',
+            'synapse_type' : sim.StaticSynapse(),
+            'connector' : sim.FixedProbabilityConnector(.2, allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'weight' : .1, # µS
+            'delay' : .2, 
+        },
+        'tc_re' : {
+            'source' : 'tc',
+            'target' : 're',
+            'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
+            'receptor_type' : 'excitatory',
+            'synapse_type' : sim.StaticSynapse(),
+            'connector' : sim.DistanceDependentProbabilityConnector("d<2", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'weight' : .01, # µS
+            'delay' : .2, 
+        },
+        're_tc' : {
+            'source' : 're',
+            'target' : 'tc',
+            'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
+            'receptor_type' : 'inhibitory',
+            'synapse_type' : sim.StaticSynapse(),
+            'connector' : sim.DistanceDependentProbabilityConnector("d<3", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'weight' : .02, # µS (SohalPangratzRudolphHuguenard2006, SanchezMcCormick1997, LamSherman2011)
+            'delay' : .2, 
+        },        
+        're_re' : {
+            'source' : 're',
+            'target' : 're',
+            'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
+            'receptor_type' : 'inhibitory',
+            'synapse_type' : sim.StaticSynapse(),
+            'connector' : sim.DistanceDependentProbabilityConnector("d<3", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'weight' : .001, # µS
+            'delay' : .2, 
+        },
+
+        # THALAMOCORTICAL
+        'tc_py' : {
+            'source' : 'tc',
+            'target' : 'py',
+            'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'synapse_type' : sim.StaticSynapse(),
+            'weight' : .004,
+            'delay' : 2., # ms, 
+            'receptor_type' : 'excitatory'
+        },
+        'tc_inh' : {
+            'source' : 'tc',
+            'target' : 'inh',
+            'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-3*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'synapse_type' : sim.StaticSynapse(),
+            'weight' : .004,
+            'delay' : 2., # ms, 
+            'receptor_type' : 'excitatory'
+        },
+
+        # CORTICAL
         'ext_py' : {
             'source' : 'ext',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            'connector' : sim.FixedProbabilityConnector(.02, rng=sim.NumpyRNG(2**32-1)),
+            'connector' : sim.FixedProbabilityConnector(.02, allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'synapse_type' : sim.StaticSynapse(),
             'weight' : .1, # µS
             # no need for delay
             'receptor_type' : 'excitatory'
         },
-
         'py_py' : {
             'source' : 'py',
             'target' : 'py',
             'space' :  sim.Space(periodic_boundaries=((0,64), (0,64), None)), # torus
-            # different seeds give different realisations of the SW spectrum, no rng abolishes SWs
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), # -0.3 results in the 0.1 probability of connecting at 7.5 grid distance
             'synapse_type' : sim.StaticSynapse(),
             'weight' : .0025, # µS
             'delay' : .5, # ms, YgerBoustaniDestexheFregnac2011
             'receptor_type' : 'excitatory'
         },
-        # 'py_py' : {
-        #     'source' : 'py',
-        #     'target' : 'py',
-        #     'receptor_type' : 'excitatory',
-        #     'synapse_type' : sim.TsodyksMarkramSynapse(U=.4, tau_rec=400.0, tau_facil=0.0), # Tsodyks and Markram 1997 Control
-        #     # 'synapse_type' : sim.TsodyksMarkramSynapse(U=0.2, tau_rec=1900.0, tau_facil=0.0), # Tsodyks and Markram 1997 ACh
-        #     'connector' : sim.DistanceDependentProbabilityConnector("exp(-0.3*d)", allow_self_connections=False),
-        #     'weight' : .0013, # µS
-        #     'delay' : .2, # ms
-        # },
-
         'py_inh' : {
             'source' : 'py',
             'target' : 'inh',
@@ -125,17 +221,6 @@
             'delay' : .5, # ms, 
             'receptor_type' : 'excitatory'
         },
-        # 'py_inh' : {
-        #     'source' : 'py',
-        #     'target' : 'inh',
-        #     'receptor_type' : 'excitatory',
-        #     'synapse_type' : sim.TsodyksMarkramSynapse(U=.5, tau_rec=400., tau_facil=0.0), # Levy et al. 2008 Control
-        #     # 'synapse_type' : sim.TsodyksMarkramSynapse(U=.4, tau_rec=50., tau_facil=0.0), # Levy et al. 2008 ACh
-        #     'connector' : sim.DistanceDependentProbabilityConnector("exp(-0.3*d)", allow_self_connections=False),
-        #     'weight' : 0.0019, # µS
-        #     'delay' : 0.2, # ms
-        # },
-
         'inh_py' : {
             'source' : 'inh',
             'target' : 'py',
@@ -146,17 +231,6 @@
             'delay' : .5, # ms, 
             'receptor_type' : 'inhibitory'
         },
-        # 'inh_py' : {
-        #     'source' : 'inh',
-        #     'target' : 'py',
-        #     'receptor_type' : 'inhibitory',
-        #     'synapse_type' : sim.TsodyksMarkramSynapse(U=.25, tau_rec=20., tau_facil=0.0), # Beierlein et al. 2003 Control
-        #     # 'synapse_type' : sim.TsodyksMarkramSynapse(U=.4, tau_rec=420., tau_facil=0.0), # GigoutJonesWierschkeDaviesWatsonDeisz2012
-        #     'connector' : sim.DistanceDependentProbabilityConnector("exp(-0.5*d)", allow_self_connections=False),
-        #     'weight' : 0.02, # µS
-        #     'delay' : .2, # ms
-        # },
-
         'inh_inh' : {
             'source' : 'inh',
             'target' : 'inh',
@@ -167,21 +241,39 @@
             'delay' : .5, # ms, 
             'receptor_type' : 'inhibitory'
         },
-        # 'inh_inh' : {
-        #     'source' : 'inh',
-        #     'target' : 'inh',
-        #     'receptor_type' : 'inhibitory',
-        #     'synapse_type' : sim.TsodyksMarkramSynapse(U=.5, tau_rec=40., tau_facil=0.0), # Control
-        #     # 'synapse_type' : sim.TsodyksMarkramSynapse(U=.2, tau_rec=40., tau_facil=0.0), # ACh
-        #     'connector' : sim.DistanceDependentProbabilityConnector("exp(-0.5*d)", allow_self_connections=False),
-        #     'weight' : 0.01, # µS
-        #     'delay' : 0.2, # ms
-        # },
+
+        # CORTICOTHALAMIC
+        'py_tc' : {
+            'source' : 'py',
+            'target' : 'tc',
+            'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'synapse_type' : sim.StaticSynapse(),
+            'weight' : .0025,
+            'delay' : 2., # ms, 
+            'receptor_type' : 'excitatory'
+        },
+        'py_re' : {
+            'source' : 'py',
+            'target' : 're',
+            'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
+            'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
+            'synapse_type' : sim.StaticSynapse(),
+            'weight' : .001,
+            'delay' : 2., # ms, 
+            'receptor_type' : 'excitatory'
+        },
 
     },
 
 
     'Recorders' : {
+        'tc' : {
+            'spikes' : 'all',
+        },
+        're' : {
+            'spikes' : 'all',
+        },
         'py' : {
             'spikes' : 'all',
             # 'v' : {
@@ -190,10 +282,6 @@
             #     'y': 15,
             #     'size': 30,
             # },
-            'v' : {
-                'start' : 1000,
-                'end' : 1010,
-            }
         },
         'inh' : {
             'spikes' : 'all',
@@ -201,29 +289,16 @@
             #     'random': True,
             #     'sample': 200,
             # },
-            'v' : {
-                'start' : 1000,
-                'end' : 1010,
-            }
+            # 'v' : {
+            #     'start' : 100,
+            #     'end' : 110,
+            # }
         },
 
     },
 
 
     'Modifiers' :{
-        # 'py' : {
-        # 'cells' : {
-        #        'start' : 0,
-        #        'end' : 0.01
-        #     },
-        #     'properties' : {
-        #         'tau_w' : 150.,
-        #         'cm' : 0.15,
-        #         'tau_m' : 30.0, #
-        #         'a' : 12., #Alain 0.02, #uS
-        #         'b' : .03 #0.0
-        #     }
-        # }
     },
 
 
@@ -234,7 +309,8 @@
     'Analysis' : {
         # 'Coherence': {
         #     'Population1': 'py',
-        #     'Population2': 'inh',
+        #     # 'Population2': 're',
+        #     'Population2': 'tc',
         # },
         # 'Movie' : {
         #     'populations': {
@@ -253,12 +329,16 @@
         #     'to': 21000,
         # },
         'Rasterplot' : {
+            'tc':{
+                'limits': [(0,16),(0,16)], # all
+            },
+            're':{
+                'limits': [(0,16),(0,16)], # all
+            },
             'py':{
-                # 'limits': [(0,63),(0,63)], # coords: [(from x, to x), (from y, to y)] 
                 'limits': [(10,50),(10,50)], # only central ones
             },
             'inh':{
-                # 'limits': [(0,63),(0,63)], # coords: [(from x, to x), (from y, to y)] 
                 'limits': [(10,50),(10,50)], # only central ones
             },
             'type': '.png',
@@ -267,14 +347,24 @@
             # 'interval': [2000.,3000.], # ms # from 2s to 3s
             'dpi':800,
         },
+        # 'Autocorrelation' : {
+        #     'populations': ['py','tc'],
+        #     # 'populations': ['py','inh','inh','re'],
+        #     'bin_size': 100, # * dt: 100 * 0.1 = 10 ms
+        # },
         # 'ISI' : {
         #     'py':{
         #         'bin': 50, # ms, 20 per second
-        #         # 'limits': [(0,63),(0,63)], # coords: [(from x, to x), (from y, to y)] 
-        #         'limits': [(10,50),(10,50)], # only central ones
+        #         'limits': [(16,16),(48,48)], # cells to be considered in the analysis (to avoid bounduary effects)
         #     },
         # },
         'FiringRate' : {
+            'tc':{
+                'firing': [0,200],
+            },
+            're':{
+                'firing': [0,200],
+            },
             'py':{
                 'firing': [0,200],
             },
@@ -282,10 +372,10 @@
                 'firing': [0,200],
             },
         },
+        'Vm' : False,
         'ISI#' : False,
         'CrossCorrelation' : False,
         'LFP' : False,
-        'Vm' : True,
         'PhaseSpace' : False,
         'Static' : False,
     },

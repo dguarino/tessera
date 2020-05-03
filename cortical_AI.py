@@ -26,7 +26,7 @@
                 'cm'         : 0.15,  # nF, tot membrane capacitance (Naud et al. 2008, https://www.neuroelectro.org/neuron/111/, YgerBoustaniDestexheFregnac2011)
                 # ACh @resting -52mV (McCormickPrince1986 Fig. 3A holding -60mV)
                 'tau_m'      : 30.0,  # ms, time constant of leak conductance (cm/gl, gl=5nS)
-                'v_rest'     : -52.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_rest'     : -58.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
                 'v_reset'    : -67.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'a'          : 1.0,   # nS, conductance of adaptation variable (Naud et al. 2008)
                 'b'          : 0.005, # nA, increment to the adaptation variable (Naud et al. 2008)
@@ -81,7 +81,7 @@
             #'connector' : sim.FixedProbabilityConnector(.02, allow_self_connections=False, rng=sim.random.NumpyRNG(1235342134, parallel_safe=False)),
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-2*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)), #
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0025, # µS
+            'weight' : .0005, # µS
             'delay' : .2, # ms, YgerBoustaniDestexheFregnac2011
             'receptor_type' : 'excitatory'
         },
