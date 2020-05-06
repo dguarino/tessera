@@ -19,9 +19,6 @@
 # ./execute.bash
 # ------------------------------------------------------------------------------
 {
-    # default_parameters = {'tau_refrac': 0.1, 'a': 4.0, 'tau_m': 9.3667, 'e_rev_E': 0.0, 'i_offset': 0.0, 'cm': 0.281, 'delta_T': 2.0, 'e_rev_I': -80.0, 'v_thresh': -50.4, 'b': 0.0805, 'tau_syn_E': 5.0, 'v_reset': -70.6, 'v_spike': -40.0, 'tau_syn_I': 5.0, 'tau_w': 144.0, 'v_rest': -70.6}
-    # units = {'tau_refrac': 'ms', 'a': 'nS', 'tau_m': 'ms', 'e_rev_E': 'mV', 'v_spike': 'mV', 'cm': 'nF', 'i_offset': 'nA', 'gsyn_exc': 'uS', 'tau_w': 'ms', 'e_rev_I': 'mV', 'delta_T': 'mV', 'b': 'nA', 'tau_syn_E': 'ms', 'v_reset': 'mV', 'w': 'nA', 'v': 'mV', 'tau_syn_I': 'ms', 'gsyn_inh': 'uS', 'v_thresh': 'mV', 'v_rest': 'mV'}
-
     'run_time': 1000., # ms
     'dt': 0.01, # ms
 
@@ -148,7 +145,8 @@
         #     # ACh effects on input resistance
 
         #     'source' : sim.StepCurrentSource,
-        #     'amplitude' : [.15, .0], # default
+        #     'amplitude' : [.15, .0], # depolarising
+        #     'amplitude' : [-.15, .0], # hyperpolarising
         #     'start' : [200., 320.], # 
         #     'stop' : 0.0,
         # },
