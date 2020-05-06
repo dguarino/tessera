@@ -38,7 +38,7 @@ In the directory `examples` you will find a series of files that illustrate the 
     * the experimental protocol closest to the available data
 
 ### how to: thalamocortical network
-Say you want to model slow-wave sleep conditions in a thalamo-cortical network of spiking neurons.
+Say you want to model slow-wave or asynchronous irregular firing regimes in a thalamo-cortical network of spiking neurons.
 
 Start by reproducing single cell responses to injection of excitatory and inhibitory current pulses, and to one-to-one synaptic interaction. Examples of these tasks are in the parameter files for [thalamic relay cell](examples/TC_response.py), [thalamic reticular cell](examples/RE_response.py), [cortical regular spiking cell](examples/RS_response.py), [cortical fast spiking cell](examples/FS_response.py). 
 
