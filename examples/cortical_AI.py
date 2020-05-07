@@ -13,6 +13,7 @@
             }
         },
 
+
         'py' : { # Regular Spiking 
             'n': 64*64, # units
             'type': sim.EIF_cond_alpha_isfa_ista,
@@ -28,8 +29,8 @@
                 'tau_m'      : 30.0,  # ms, time constant of leak conductance (cm/gl, gl=5nS)
                 'v_rest'     : -65.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
                 'v_reset'    : -67.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                'a'          : 1.0,   # nS, conductance of adaptation variable (Naud et al. 2008)
-                'b'          : 0.005, # nA, increment to the adaptation variable (Naud et al. 2008)
+                'a'          : 0.1,   # nS, conductance of adaptation variable (Naud et al. 2008)
+                'b'          : 0.1, # nA, increment to the adaptation variable (Naud et al. 2008)
                 'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
                 # # ACh @resting -52mV (McCormickPrince1986 Fig. 3A holding -60mV)
                 # 'tau_m'      : 30.0,  # ms, time constant of leak conductance (cm/gl, gl=5nS)
