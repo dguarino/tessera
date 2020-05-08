@@ -23,7 +23,7 @@ My personal set of function is in:
 * analysis.py - additional routines for the analysis of simulation results
 
 ## how to
-*tessera* is a dictionary of parameters used to drive PyNN. 
+*tessera* enables you to drive PyNN through a dictionary of parameters. 
 
 I built it to help me focus only on the core elements required to develop neural networks: the model parameters. 
 
@@ -66,7 +66,6 @@ For example, the Figure 3 in the paper illustrates the RS cell response to excit
 The parameter `source` is a proxy for the PyNN type of injection source, with its corresponding `amplitude` and times of injection (`start`). This is the minimal reproduction of the protocol used in the original paper from McCormick and Prince 1986.
 
 #### how to: run this example
-
 Enter the tessera folder
 
 ```
@@ -105,7 +104,6 @@ After modelling several types of cell matching in-vitro intracellular data, and 
 For example, the parameter file [thalamocortical network (spindles)](examples/thalamocortical_SW_Spindles.py) contains all it is required to reproduce the overall statistics of the preparation as found in paper by VonKrosigk, Bal, and McCormick "Cellular Mechanisms of a Synchronized Oscillation in the Thalamus" (1993).
 
 #### how to: run this example
-
 Enter the tessera folder
 
 ```
@@ -125,7 +123,6 @@ Run the code
 ```
 
 ## Docker Image
-
 Everything you need (and more) to run *tessera* is found in the invaluable docker image *simulationx* maintained by Andrew Davison [here](https://hub.docker.com/r/neuralensemble/simulationx/):
 
 * shell environment with NEST 2.14, NEURON 7.5, and PyNN 0.9 installed.
@@ -135,7 +132,6 @@ Everything you need (and more) to run *tessera* is found in the invaluable docke
 I just included it in the *tessera* Dockerfile, simply adding the reference to this github repository.
 
 ### Basic Docker use
-
 Start docker daemon
 
 ```
