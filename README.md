@@ -81,7 +81,7 @@ cp examples/RS_response.py .
 Run the code
 
 ```
-# python run.py --folder testRS --params RS_response.py nest
+python run.py --folder testRS --params RS_response.py nest
 ```
 
 You can have help on the parameters by typing `python run.py --help`.
@@ -89,13 +89,13 @@ You can have help on the parameters by typing `python run.py --help`.
 For a parameter search, the file `search.py` contains several examples of possible searches. To run searches, a file should be specified
 
 ```
-# python run.py --folder RS_search --params RS_response.py --search search.py nest
+python run.py --folder RS_search --params RS_response.py --search search.py nest
 ```
 
 In case the simulation has run already and a new analysis algorithm has been developed, the analysis alone can be performed by specifying it at the command line
 
 ```
-# python run.py --folder RS_search --params RS_response.py --search search.py --analysis true nest
+python run.py --folder RS_search --params RS_response.py --search search.py --analysis true nest
 ```
 
 ### how to: thalamocortical network
@@ -119,7 +119,7 @@ cp examples/thalamocortical_SW_Spindles.py .
 Run the code
 
 ```
-# python run.py --folder testSpindles --params thalamocortical_SW_Spindles.py nest
+python run.py --folder testSpindles --params thalamocortical_SW_Spindles.py nest
 ```
 
 ## Docker Image
