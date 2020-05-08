@@ -56,7 +56,7 @@ Some parameters, like membrane capacitance and spike treshold, will be set from 
 
 Some other parameters, like time constant of leak conductance and resting potential, are found by iterating over the protocols in the paper and systematically searching within a range of values (we will see how below). 
 
-For example, the Figure 3 in the paper illustrates the RS cell response to excitatory and inhibitory current pulses. In the parameter file, in the section `Injections` (line 145), you will find an essential reproduction of the experimental protocol of Figure 3B.
+For example, the Figure 3 in the paper illustrates the RS cell response to excitatory and inhibitory current pulses. In the parameter file, in the section `Injections` (line 145), you will find an essential reproduction of the experimental protocol of Figure 3.
 
     'source' : sim.StepCurrentSource,
     'amplitude' : [.15, .0], # depolarising
@@ -64,6 +64,8 @@ For example, the Figure 3 in the paper illustrates the RS cell response to excit
     'start' : [200., 320.], # 
 
 The parameter `source` is a proxy for the PyNN type of injection source, with its corresponding `amplitude` and times of injection (`start`). This is the minimal reproduction of the protocol used in the original paper from McCormick and Prince 1986.
+
+![original data and model fit](examples/Model_and_McCormickPrince1986_fig3.png)
 
 #### how to: run this example
 Enter the tessera folder
