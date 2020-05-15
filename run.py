@@ -143,8 +143,9 @@ np.random.seed(2**32-1) # impose seed to numpy
 info = []
 totc = len(combinations)
 for i,comb in enumerate(combinations):
-    print("\n\nparam combination:",i,"/",totc)
-    print("current set:",comb)
+    if totc>1:
+        print("\n\nparam combination:",i,"/",totc)
+        print("current set:",comb)
 
     # replacement
     for ckey,val in comb.items():
