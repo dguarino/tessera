@@ -6,17 +6,17 @@
 # $ docker run -v `pwd`:`pwd` -w `pwd` -i -t tessera /bin/bash
 
 # Run one simulation
-# python run.py --folder test --params thalamocortical_delta.py nest
+# python run.py --folder test --params thalamocortical_SWdelta.py nest
 
 # Run parameter search
-# python run.py --folder test --params thalamocortical_delta.py --search search.py nest
+# python run.py --folder test --params thalamocortical_SWdelta.py --search search.py nest
 
 # Analysis only
-# python run.py --folder test --params thalamocortical_delta.py --analysis true nest
+# python run.py --folder test --params thalamocortical_SWdelta.py --analysis true nest
 
 # ------------------------------------------------------------------------------
 {
-    'run_time': 10000, # ms
+    'run_time': 20000, # ms
     'dt': 0.1, # ms
 
     'Populations' : {
@@ -36,8 +36,8 @@
             'type' :  sim.EIF_cond_alpha_isfa_ista,
             'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams' : {
-                'tau_syn_E'  : 3.0,   # ms
-                'tau_syn_I'  : 7.0,   # ms
+                'tau_syn_E'  : 5.0,   # ms
+                'tau_syn_I'  : 5.0,   # ms
                 'tau_refrac' : 2.5,   # ms, refractory period (ReinagelReid2000)
                 'delta_T'    : 2.5,   # mV, steepness of exponential approach to threshold (Destexhe2009)
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (https://www.neuroelectro.org/neuron/190/)
@@ -56,8 +56,8 @@
             'type' :  sim.EIF_cond_alpha_isfa_ista,
             'structure' : Grid2D(dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams' : {
-                'tau_syn_E'  : 3.0,   # ms
-                'tau_syn_I'  : 7.0,   # ms
+                'tau_syn_E'  : 5.0,   # ms
+                'tau_syn_I'  : 5.0,   # ms
                 'tau_refrac' : 2.5,   # ms, refractory period (ReinagelReid2000)
                 'delta_T'    : 2.5,   # mV, steepness of exponential approach to threshold (Destexhe2009)
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (https://www.neuroelectro.org/neuron/190/)
@@ -75,9 +75,7 @@
         # CORTEX
         'py' : { # Regular Spiking 
             'n': 64*64, # units have to be placed in a squared (aspect ratio 1) grid 
-            # 'n': 1600, # units
             'type': sim.EIF_cond_alpha_isfa_ista,
-            # 'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='sequential'),
             'structure' : Grid2D(aspect_ratio=1, dx=1.0, dy=1.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams': {
                 'tau_syn_E'  : 3.,    # ms, 
@@ -88,19 +86,18 @@
                 'v_thresh'   : -52.0, # mV, fixed spike threshold (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107)
                 # Slow Waves - No ACh
                 'tau_m'      : 17.0,  # ms, time constant of leak conductance (cm/gl, gl=8nS)
-                'v_rest'     : -75.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                'v_reset'    : -70.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                # 'v_rest'     : simrand.RandomDistribution('normal', mu=-75., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                # 'v_reset'    : simrand.RandomDistribution('normal', mu=-70., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                # 'v_rest'     : -75.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                # 'v_reset'    : -70.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'v_rest'     : simrand.RandomDistribution('normal', mu=-75., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_reset'    : simrand.RandomDistribution('normal', mu=-65., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
                 'a'          : 1.0,   # nS, conductance of adaptation variable (Naud et al. 2008)
-                'b'          : .01,  # nA, increment to the adaptation variable (Naud et al. 2008)
+                'b'          : 0.01,  # nA, increment to the adaptation variable (Naud et al. 2008)
                 'tau_w'      : 88.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
             }
         },
         'inh' : { # Fast Spiking 
             'n': {'ref':'py','ratio':0.25},
             'type': sim.EIF_cond_alpha_isfa_ista,
-            # 'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='sequential'),
             'structure' : Grid2D(aspect_ratio=1, dx=2.0, dy=2.0, fill_order='random', rng=sim.NumpyRNG(seed=2**32-1)),
             'cellparams': {
                 'tau_syn_E'  : 5.,    # ms
@@ -111,13 +108,13 @@
                 'v_thresh'   : -50.0, # mV, fixed spike threshold (fix McCormickPrince1986, Naud et al. 2008, https://www.neuroelectro.org/neuron/111, 107, 106)
                 # Slow Waves - No ACh
                 'tau_m'      : 5.0,   # ms, time constant of leak conductance (cm/gl, gl=11.8nS) s=F/S 10-9/10-9
-                'v_rest'     : -56.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                'v_reset'    : -74.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                # 'v_rest'     : simrand.RandomDistribution('normal', mu=-56., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
-                # 'v_reset'    : simrand.RandomDistribution('normal', mu=-74., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
-                'a'          : 0.5,   # nS, conductance of adaptation variable (Naud et al. 2008)
+                # 'v_rest'     : -56.0, # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                # 'v_reset'    : -74.0, # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'v_rest'     : simrand.RandomDistribution('normal', mu=-55., sigma=0.01), # mV, resting potential E_leak (https://www.neuroelectro.org/neuron/111, 107)
+                'v_reset'    : simrand.RandomDistribution('normal', mu=-55., sigma=0.01), # mV, reset after spike (Naud et al. 2008, https://www.neuroelectro.org/neuron/111, AHP Amplitude)
+                'a'          : 1.5,   # nS, conductance of adaptation variable (Naud et al. 2008)
                 'b'          : 0.01,  # nA, increment to the adaptation variable (Naud et al. 2008)
-                'tau_w'      : 28.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
+                'tau_w'      : 16.0,  # ms, time constant of adaptation variable (Naud et al. 2008)
             }
         },
     },
@@ -261,7 +258,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .0035,
+            'weight' : .005,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
@@ -271,7 +268,7 @@
             'space' :  sim.Space(periodic_boundaries=((0,16), (0,16), None)), # torus
             'connector' : sim.DistanceDependentProbabilityConnector("14*exp(-1.5*d)", allow_self_connections=False, rng=sim.NumpyRNG(2**32-1)),
             'synapse_type' : sim.StaticSynapse(),
-            'weight' : .002,
+            'weight' : .005,
             'delay' : 2., # ms, 
             'receptor_type' : 'excitatory'
         },
