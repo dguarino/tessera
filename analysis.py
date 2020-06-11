@@ -188,12 +188,12 @@ def analyse(params, folder, addon='', removeDataFile=False):
             # workaround
             fig = plot.figure()
             plot.plot(vm,linewidth=2)
-            # plot.ylim([-100,0.0]) # GENERIC
+            plot.ylim([-100,0.0]) # GENERIC
             #################
             # plot.xlim([9900,12500]) # E/IPSP single pulse (0.1 Hz)
             #################
             plot.xlim([10000,60000]) # E/IPSP single pulse (0.1 Hz)
-            plot.ylim([-66,-54]) # Control EPSP on RE
+            # plot.ylim([-66,-54]) # Control EPSP on RE
             #################
             # plot.ylim([-75.5,-71.5]) # Control EPSP on RS
             # plot.ylim([-79.,-74.5]) # ACh EPSP on RS
