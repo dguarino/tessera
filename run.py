@@ -29,8 +29,11 @@ import os
 import csv
 import shutil
 from functools import reduce
-import sys, getopt
+import sys
+import getopt
+import importlib
 import itertools as it
+
 import numpy as np
 
 from pyNN.utility import get_simulator
@@ -73,6 +76,7 @@ def getValue(dic, keys):
 # python run.py --folder EPSPsearch --params epsp_response.py --search search.py --analysis true nest
 
 sim, opts = get_simulator(
+        # ("--analysis", "Perform analysis only", {"dest":"analysis_file"}),
         ("--analysis", "Perform analysis only", {"type":bool}),
         ("--remove", "Remove data files (after analysis)", {"type":bool}),
         ("--folder", "Folder to save the data in (created if it does not exists)", {"dest":"data_folder", "required":True}),
@@ -87,6 +91,8 @@ if opts.debug:
 
 if opts.analysis:
     print("\nRunning analysis and plotting only ...")
+    # with open(opts.analysis_file, 'r') as afile:
+    #     astring = afile.read()
 
 if opts.remove:
     print("\nRemoving data files after analysis ...")
@@ -99,7 +105,7 @@ else:
 
 params = {}
 if opts.param_file != '':
-    print("\nUsing parameter file:", opts.param_file)
+    print("\nUsing parameter file:", opts.param_file)   
     with open(opts.param_file, 'r') as pfile:
         pstring = pfile.read()
         params = eval(pstring)
@@ -114,7 +120,6 @@ if opts.search_file:
     with open(opts.search_file, 'r') as sfile:
         sstring = sfile.read()
         search = eval(sstring)
-
 
 
 
@@ -143,7 +148,7 @@ np.random.seed(2**32-1) # impose seed to numpy
 info = []
 totc = len(combinations)
 for i,comb in enumerate(combinations):
-    if totc>1:
+    if totc > 1:
         print("\n\nparam combination:",i,"/",totc)
         print("current set:",comb)
 
@@ -157,16 +162,34 @@ for i,comb in enumerate(combinations):
         os.makedirs(opts.data_folder)
 
     param_file_name = opts.data_folder+'/'+str(comb)+'_'+opts.param_file
+    # copy the param file as is in the destination folder
+    shutil.copy(opts.param_file,param_file_name+'.copy')
+    # write the modified param file 
     with open(param_file_name, 'w') as pfile:
         pfile.write( str(params) )
         pfile.close()
+
+    if not 'trials' in params: # backward compatibility (to be removed from future versions)
+        params['trials'] = []
+        params['trials'].append( {'name':'default', 'count':1} )
 
     if not opts.analysis:
         Populations = h.build_network(sim, params)
         h.record_data(params, Populations)
         h.perform_injections(params, Populations)
-        h.run_simulation(sim, params, Populations)
-        h.save_data(Populations, opts.data_folder, str(comb))
+        # h.run_simulation(sim, params, Populations, 'default')
+        # h.save_data(Populations, opts.data_folder, addon=str(comb))
+        for trial in params['trials']:
+            print("\n"+trial['name'])
+            if 'modify' in trial: # modify populations before running the trials
+                # print("before",Populations['py'].get(['tau_m','v_rest','v_reset','a','b','tau_w']))
+                h.modify_populations(sim, trial['modify'], Populations)
+                # print("after",Populations['py'].get(['tau_m','v_rest','v_reset','a','b','tau_w']))
+            for itrial in range(trial['count']):
+                print("trial #",itrial)
+                h.run_simulation(sim, params['run_time'])
+                h.save_data(Populations, opts.data_folder, addon=str(comb)+'_'+trial['name']+str(itrial))
+                # np.random.seed((2**32-1)-itrial) # new seed to numpy
         sim.end()
 
     scores = a.analyse(params, opts.data_folder, str(comb), opts.remove)
